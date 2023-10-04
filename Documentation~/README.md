@@ -92,25 +92,30 @@ internal sealed class MyGameManager : GameManager
     {
         return "My Game Manager";
     }
+    
+    protected override IGameManagerSettings GetGameManagerSettings()
+    {
+        // Provide custom settings implementation
+    }
 
     protected override IGameStorage CreateRuntimeGameStorage()
     {
-        // Provide a custom storage solution
+        // Provide a custom storage implementation
     }
 
     protected override IResourceLoader CreateResourceLoader()
     {
-        // Provide a custom resource loading solution
+        // Provide a custom resource loading implementation
     }
 
     protected override IEntityManager CreateEntityManager()
     {
-        // Provide a custom entity storage solution (used for service locator)
+        // Provide a custom entity storage implementation (used for service locator)
     }
 
     protected override IMessageBus CreateMessageBus()
     {
-        // Provide a custom messaging solution
+        // Provide a custom messaging implementation
     }
 }
 ```

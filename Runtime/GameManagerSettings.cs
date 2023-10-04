@@ -12,7 +12,7 @@ namespace CHARK.GameManagement
         menuName = CreateAssetMenuConstants.BaseMenuName + "/Game Manager Settings",
         order = CreateAssetMenuConstants.BaseOrder
     )]
-    internal sealed class GameManagerSettings : ScriptableObject
+    internal sealed class GameManagerSettings : ScriptableObject, IGameManagerSettings
     {
 #if ODIN_INSPECTOR
         [Sirenix.OdinInspector.FoldoutGroup("General", Expanded = true)]
@@ -84,9 +84,40 @@ namespace CHARK.GameManagement
 
         private static GameManagerSettings currentSettings;
 
-        internal bool IsInstantiateAutomatically => isInstantiateAutomatically;
+        public bool IsInstantiateAutomatically => isInstantiateAutomatically;
 
-        internal RuntimeInitializeLoadType LoadType => loadType;
+        public RuntimeInitializeLoadType LoadType => loadType;
+
+        public bool IsDontDestroyOnLoad => isDontDestroyOnLoad;
+
+        public bool IsVerboseLogging => isVerboseLogging;
+
+        /// <summary>
+        /// Currently active settings instance. Never <c>null</c>.
+        /// </summary>
+        internal static IGameManagerSettings Instance
+        {
+            get
+            {
+                if (currentSettings && currentSettings.IsActiveSettings)
+                {
+                    return currentSettings;
+                }
+
+                if (TryGetSettings(out var settings))
+                {
+                    currentSettings = settings;
+                    currentSettings.IsActiveSettings = true;
+                }
+                else
+                {
+                    currentSettings = CreateSettings();
+                    currentSettings.IsActiveSettings = true;
+                }
+
+                return currentSettings;
+            }
+        }
 
         private bool IsActiveSettings
         {
@@ -107,34 +138,7 @@ namespace CHARK.GameManagement
             }
         }
 
-        internal bool IsDontDestroyOnLoad => isDontDestroyOnLoad;
-
-        internal bool IsVerboseLogging => isVerboseLogging;
-
-        internal static GameManagerSettings Instance
-        {
-            get
-            {
-                if (currentSettings && currentSettings.IsActiveSettings)
-                {
-                    return currentSettings;
-                }
-
-                if (TryGetSettings(out var settings))
-                {
-                    currentSettings = settings;
-                }
-                else
-                {
-                    currentSettings = CreateSettings();
-                    currentSettings.IsActiveSettings = true;
-                }
-
-                return currentSettings;
-            }
-        }
-
-        internal bool TryGetGameManagerPrefab(out GameManager prefab)
+        public bool TryGetGameManagerPrefab(out GameManager prefab)
         {
             if (gameManagerPrefab)
             {
