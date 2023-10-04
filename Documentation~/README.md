@@ -9,7 +9,7 @@
 
 [Default Game Manager]: ../Samples%7E/Defaults/Scripts/DefaultGameManager.cs
 [Default Game Manager Prefab]: ../Samples%7E/Defaults/Prefabs/DefaultGameManager.prefab
-[Default Game Manager Settings]: ../Samples%7E/Defaults/Settings/DefaultGameManagerSettings.asset
+[Default Game Manager Settings]: ../Samples%7E/Defaults/Resources/DefaultGameManagerSettings.asset
 
 [SimpleSystem]: ../Runtime/Systems/SimpleSystem.cs
 [MonoSystem]: ../Runtime/Systems/MonoSystem.cs
