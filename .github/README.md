@@ -29,6 +29,7 @@ internal class MyGameManager : GameManager
 - Message Bus
 - Data storage
 - Automatic initialization
+- Odin Inspector support
 
 ## Installation
 

@@ -8,3 +8,11 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 ## [v0.0.1](https://github.com/chark/game-management/compare/v0.0.1) - 2023-10-04
 
 Initial preview version.
+
+### Added
+
+- Core Game Management logic.
+- System adding, removal and retrieval.
+- Messaging solution.
+- Storage solution with built-in json support.
+- Documentation.
