@@ -6,9 +6,6 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
-    path: Packages/com.chark.scriptable-scenes/Tests/Runtime/Scenes/TestSceneA.unity
-    guid: 9a8404b8cbc191c41badcb93ad17e44a
-  - enabled: 1
-    path: Packages/com.chark.scriptable-scenes/Tests/Runtime/Scenes/TestSceneB.unity
-    guid: 18351044c3ae92546931789e7997bf25
+    path: Assets/Scenes/SampleScene.unity
+    guid: f944e22ca81aba644a6b10652036a47d
   m_configObjects: {}

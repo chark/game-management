@@ -1,0 +1,20 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4f41518ec4cd48f0977f72ee2845e8ee, type: 3}
+  m_Name: DefaultGameManagerSettings
+  m_EditorClassIdentifier: 
+  isActiveSettings: 0
+  isInstantiateAutomatically: 1
+  gameManagerPrefab: {fileID: 7741020879531430492, guid: 53f0da16259332b4090db44e5815a981, type: 3}
+  loadType: 1
+  isDontDestroyOnLoad: 1
+  isVerboseLogging: 0
