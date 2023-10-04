@@ -73,8 +73,7 @@ namespace CHARK.GameManagement
             if (settings.TryGetGameManagerPrefab(out var prefab) == false)
             {
                 Debug.LogError(
-                    $"Game Manager Prefab is not set in {nameof(GameManagerSettings)}",
-                    settings
+                    $"Game Manager Prefab is not set in {nameof(GameManagerSettings)} settings"
                 );
 
                 return;
@@ -102,7 +101,8 @@ namespace CHARK.GameManagement
             {
                 InitializeGameManager();
 
-                if (GameManagerSettings.Instance.IsDontDestroyOnLoad)
+                var settings = GetGameManagerSettings();
+                if (settings.IsDontDestroyOnLoad)
                 {
                     DontDestroyOnLoad(gameObject);
                 }
@@ -149,6 +149,15 @@ namespace CHARK.GameManagement
         /// </summary>
         protected virtual void OnBeforeDestroy()
         {
+        }
+
+        /// <returns>
+        /// Custom <see cref="IGameManagerSettings"/> implementation. Defaults to
+        /// <see cref="GameManagerSettings.Instance"/>.
+        /// </returns>
+        protected virtual IGameManagerSettings GetGameManagerSettings()
+        {
+            return GameManagerSettings.Instance;
         }
 
         /// <returns>
@@ -203,7 +212,8 @@ namespace CHARK.GameManagement
         /// </returns>
         protected virtual IEntityManager CreateEntityManager()
         {
-            return new EntityManager(GameManagerSettings.Instance.IsVerboseLogging);
+            var settings = GetGameManagerSettings();
+            return new EntityManager(settings.IsVerboseLogging);
         }
 
         /// <returns>
@@ -244,7 +254,8 @@ namespace CHARK.GameManagement
                     continue;
                 }
 
-                if (GameManagerSettings.Instance.IsVerboseLogging)
+                var settings = GetGameManagerSettings();
+                if (settings.IsVerboseLogging)
                 {
                     var systemType = entity.GetType();
                     var systemName = systemType.Name;
