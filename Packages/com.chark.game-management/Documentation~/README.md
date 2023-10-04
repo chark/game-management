@@ -42,7 +42,7 @@ After importing, hit play and the [Default Game Manager] should instantiate and 
 
 ## Game Manager Settings
 
-Regardless if you use a [Game Manager] from [Samples] or a custom one, you'll need to define a [Game Manager Settings] asset. This asset will be created automatically in `Resources` directory by the game management code. However, if that doesn't happen, right-click anywhere in the _Project Window_ and select _Create/CHARK/Game Management/Game Manager Settings_ and create it manually:
+Regardless if you use a [Game Manager] from [Samples~] or a custom one, you'll need to define a [Game Manager Settings] asset. This asset will be created automatically in `Resources` directory by the game management code. However, if that doesn't happen, right-click anywhere in the _Project Window_ and select _Create/CHARK/Game Management/Game Manager Settings_ and create it manually:
 
 <p align="center">
   <img src="settings.png"/>
@@ -57,11 +57,11 @@ Available properties for customization:
 
 ## Scripting
 
-[Game Manager] provides a set of static methods to interact with its functionality. Additionally, it is fully customizable, meaning you can override how it sends messages and so on.
+[Game Manager] provides a set of static methods to interact with its functionality. Additionally, it is fully customizable, meaning you can override how it sends messages by supplying custom implementations in of various sub-systems.
 
 ### Game Manager
 
-The starting point when using this package should be a class that inherits [Game Manager]. Here you can define your systems, initialize game state, override default behavior:
+The starting point when using this package should be a class that inherits [Game Manager]. Here you can define your systems, initialize game state and override default behavior:
 
 ```csharp
 using CHARK.GameManagement;
@@ -123,7 +123,7 @@ Some things to keep in mind:
 
 ### Game Manager Static Methods
 
-To communicate with the currently active management backend, use static methods exposed on [Game Manager] class:
+To communicate with the currently active management backend in your regular components and gameplay code, use static methods exposed on [Game Manager] class:
 
 ```csharp
 // Retrieve a set of systems
