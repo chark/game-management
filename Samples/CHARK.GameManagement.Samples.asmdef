@@ -1,0 +1,16 @@
+{
+    "name": "CHARK.GameManagement.Samples",
+    "rootNamespace": "CHARK.GameManagement",
+    "references": [
+        "GUID:25d450bec9ae260468287206ac6939a5"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
