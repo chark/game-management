@@ -249,3 +249,9 @@ internal readonly struct MyMessage : IMessage
 {
 }
 ```
+
+Afterward you can fire away your messages like so:
+
+```csharp
+GameManager.Publish(new MyMessage());
+```
