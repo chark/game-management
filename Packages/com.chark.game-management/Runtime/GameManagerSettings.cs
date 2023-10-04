@@ -12,7 +12,7 @@ namespace CHARK.GameManagement
         menuName = CreateAssetMenuConstants.BaseMenuName + "/Game Manager Settings",
         order = CreateAssetMenuConstants.BaseOrder
     )]
-    internal sealed class GameManagerSettings : ScriptableObject, IGameManagerSettings
+    public sealed class GameManagerSettings : ScriptableObject, IGameManagerSettings
     {
 #if ODIN_INSPECTOR
         [Sirenix.OdinInspector.FoldoutGroup("General", Expanded = true)]
