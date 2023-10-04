@@ -3,7 +3,7 @@
 [![Unity 2022.3+](https://img.shields.io/badge/unity-2022.3%2B-blue.svg)](https://unity3d.com/get-unity/download)
 [![Actions Status](https://github.com/chark/game-management/workflows/CI/badge.svg)](https://github.com/chark/game-management/actions)
 
-Essential and minimalistic, code-first Game Management tools.
+Essential, minimalistic and code-first Game Management tools. Perfect for game-jams and medium-sized projects.
 
 ```csharp
 internal class MyGameManager : GameManager
