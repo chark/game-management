@@ -5,9 +5,21 @@
 
 Essential and minimalistic game management tools.
 
-<p align="center">
-  <img src="screenshot.png"/>
-</p>
+```csharp
+internal class MyGameManager : GameManager
+{
+    protected override void OnBeforeInitializeSystems()
+    {
+        AddSystem(new MySystem());
+    }
+
+    protected override void OnAfterInitializeSystems()
+    {
+        var mySystem = GetSystem<MySystem>();
+        mySystem.DoSomething();
+    }
+}
+```
 
 :warning: **Warning, this is a preview package, expect breaking changes between releases!**
 
