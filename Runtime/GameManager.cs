@@ -10,20 +10,6 @@ namespace CHARK.GameManagement
     [DefaultExecutionOrder(-1)]
     public abstract partial class GameManager : MonoBehaviour
     {
-#if ODIN_INSPECTOR
-        [Sirenix.OdinInspector.FoldoutGroup("Features", Expanded = true)]
-#else
-        [Header("Features")]
-#endif
-        [SerializeField]
-        private bool isDontDestroyOnLoad = true;
-
-#if ODIN_INSPECTOR
-        [Sirenix.OdinInspector.FoldoutGroup("Features", Expanded = true)]
-#endif
-        [SerializeField]
-        private bool isVerboseLogging;
-
         private static GameManager currentGameManager;
 
         private static readonly IGameStorage EditorStorage =
@@ -39,6 +25,64 @@ namespace CHARK.GameManagement
         private IResourceLoader resourceLoader;
         private IEntityManager entityManager;
         private IMessageBus messageBus;
+
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+        private static void OnSubsystemRegistration()
+        {
+            OnInstantiate(RuntimeInitializeLoadType.SubsystemRegistration);
+        }
+
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterAssembliesLoaded)]
+        private static void OnAfterAssembliesLoaded()
+        {
+            OnInstantiate(RuntimeInitializeLoadType.AfterAssembliesLoaded);
+        }
+
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
+        private static void OnAfterSceneLoad()
+        {
+            OnInstantiate(RuntimeInitializeLoadType.AfterSceneLoad);
+        }
+
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
+        private static void OnBeforeSceneLoad()
+        {
+            OnInstantiate(RuntimeInitializeLoadType.BeforeSceneLoad);
+        }
+
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSplashScreen)]
+        private static void OnBeforeSplashScreen()
+        {
+            OnInstantiate(RuntimeInitializeLoadType.BeforeSplashScreen);
+        }
+
+        private static void OnInstantiate(RuntimeInitializeLoadType targetLoadType)
+        {
+            var settings = GameManagerSettings.Instance;
+            if (settings.IsInstantiateAutomatically == false)
+            {
+                return;
+            }
+
+            var settingsLoadType = settings.LoadType;
+            if (settingsLoadType != targetLoadType)
+            {
+                return;
+            }
+
+            if (settings.TryGetGameManagerPrefab(out var prefab) == false)
+            {
+                Debug.LogError(
+                    $"Game Manager Prefab is not set in {nameof(GameManagerSettings)}",
+                    settings
+                );
+
+                return;
+            }
+
+            var newGameManager = Instantiate(prefab);
+            newGameManager.name = newGameManager.GetGameManagerName();
+        }
 
         private void Awake()
         {
@@ -58,7 +102,7 @@ namespace CHARK.GameManagement
             {
                 InitializeGameManager();
 
-                if (isDontDestroyOnLoad)
+                if (GameManagerSettings.Instance.IsDontDestroyOnLoad)
                 {
                     DontDestroyOnLoad(gameObject);
                 }
@@ -75,20 +119,45 @@ namespace CHARK.GameManagement
             NotifyUpdateListeners();
         }
 
+        private void OnDestroy()
+        {
+            OnBeforeDestroy();
+
+            var systems = entityManager.GetEntities<ISystem>();
+            foreach (var system in systems)
+            {
+                RemoveSystem(system);
+            }
+        }
+
         /// <summary>
         /// Called when systems are about to initialize and should be added to the game.
         /// </summary>
-        protected abstract void OnBeforeInitializeSystems();
+        protected virtual void OnBeforeInitializeSystems()
+        {
+        }
 
         /// <summary>
         /// Called when all systems are initialized.
         /// </summary>
-        protected abstract void OnAfterInitializeSystems();
+        protected virtual void OnAfterInitializeSystems()
+        {
+        }
+
+        /// <summary>
+        /// Called the game manager is about to be destroyed.
+        /// </summary>
+        protected virtual void OnBeforeDestroy()
+        {
+        }
 
         /// <returns>
         /// Name of this game manager.
         /// </returns>
-        protected abstract string GetGameManagerName();
+        protected virtual string GetGameManagerName()
+        {
+            return name;
+        }
 
         /// <summary>
         /// Add <paramref name="system"/> to <see cref="entityManager"/>.
@@ -134,7 +203,7 @@ namespace CHARK.GameManagement
         /// </returns>
         protected virtual IEntityManager CreateEntityManager()
         {
-            return new EntityManager(isVerboseLogging);
+            return new EntityManager(GameManagerSettings.Instance.IsVerboseLogging);
         }
 
         /// <returns>
@@ -175,7 +244,7 @@ namespace CHARK.GameManagement
                     continue;
                 }
 
-                if (isVerboseLogging)
+                if (GameManagerSettings.Instance.IsVerboseLogging)
                 {
                     var systemType = entity.GetType();
                     var systemName = systemType.Name;

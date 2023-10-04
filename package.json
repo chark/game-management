@@ -17,6 +17,11 @@
       "displayName": "Defaults",
       "description": "Set of defaults to be used as a starting point.",
       "path": "Samples~/Defaults"
+    },
+    {
+      "displayName": "Counters",
+      "description": "Sample which showcases how to use systems, messaging and storage APIs.",
+      "path": "Samples~/Counters"
     }
   ],
   "dependencies": {
