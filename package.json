@@ -1,0 +1,25 @@
+{
+  "name": "com.chark.game-management",
+  "displayName": "Game Management",
+  "author": {
+    "name": "CHARK",
+    "url": "https://chark.io"
+  },
+  "version": "0.0.1",
+  "unity": "2022.3",
+  "description": "Essential and minimalistic game management tools: messaging, service locator, data-storage and more.",
+  "keywords": [
+    "unity",
+    "architecture"
+  ],
+  "samples": [
+    {
+      "displayName": "Defaults",
+      "description": "Set of defaults to be used as a starting point.",
+      "path": "Samples~/Defaults"
+    }
+  ],
+  "dependencies": {
+    "com.unity.nuget.newtonsoft-json": "3.2.1"
+  }
+}
