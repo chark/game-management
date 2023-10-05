@@ -54,4 +54,3 @@ If you'd like to install a specific release, replace `upm` suffix with version n
 - [Documentation](../Packages/com.chark.game-management/Documentation~/README.md)
 - [Contributing](CONTRIBUTING.md)
 - [Changelog](../Packages/com.chark.game-management/CHANGELOG.md)
-- [License](../Packages/com.chark.game-management/LICENSE.md)
