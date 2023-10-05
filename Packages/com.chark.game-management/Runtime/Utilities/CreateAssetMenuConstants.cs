@@ -20,6 +20,6 @@ namespace CHARK.GameManagement.Utilities
         /// <summary>
         /// Base menu order.
         /// </summary>
-        internal const int BaseOrder = -1000;
+        internal const int BaseOrder = 150;
     }
 }
