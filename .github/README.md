@@ -34,7 +34,12 @@ internal class MyGameManager : GameManager
 
 ## Installation
 
-This package can be installed via the Package Manager by [Installing from a Git URL](https://docs.unity3d.com/Manual/upm-ui-giturl.html):
+This package can be installed via [OpenUPM](https://openupm.com/packages/com.chark.game-management):
+```text
+openupm add com.chark.game-management
+```
+
+Or via the Unity Package Manager by [Installing from a Git URL](https://docs.unity3d.com/Manual/upm-ui-giturl.html):
 
 ```text
 https://github.com/chark/game-management.git#upm
