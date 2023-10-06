@@ -1,6 +1,4 @@
-﻿using UnityEngine;
-
-namespace CHARK.GameManagement.Samples.Counters
+﻿namespace CHARK.GameManagement.Samples.Counters
 {
     internal sealed class CountersGameManager : GameManager
     {
@@ -16,12 +14,6 @@ namespace CHARK.GameManagement.Samples.Counters
             // After systems are initialized, they can be interacted with freely in this method.
             var counterSystem = GetSystem<ICounterSystem>();
             counterSystem.IsTrackCounts = true;
-
-            Debug.Log(
-                $"{nameof(ICounterSystem)} counts,"
-                + $" {nameof(counterSystem.FixedUpdateCount)}={counterSystem.FixedUpdateCount}"
-                + $" {nameof(counterSystem.UpdateCount)}={counterSystem.UpdateCount}"
-            );
         }
 
         protected override string GetGameManagerName()

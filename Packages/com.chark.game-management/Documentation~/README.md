@@ -6,10 +6,11 @@
 
 [Game Manager]: ../Runtime/GameManager.cs
 [Game Manager Settings]: ../Runtime/GameManagerSettings.cs
+[Game Manager Settings Profile]: ../Runtime/Settings/GameManagerSettingsProfile.cs
 
 [Default Game Manager]: ../Samples%7E/Defaults/Scripts/DefaultGameManager.cs
 [Default Game Manager Prefab]: ../Samples%7E/Defaults/Prefabs/DefaultGameManager.prefab
-[Default Game Manager Settings]: ../Samples%7E/Defaults/Resources/DefaultGameManagerSettings.asset
+[Default Game Manager Settings Profile]: ../Samples%7E/Defaults/Resources/DefaultGameManagerSettingsProfile.asset
 
 [SimpleSystem]: ../Runtime/Systems/SimpleSystem.cs
 [MonoSystem]: ../Runtime/Systems/MonoSystem.cs
@@ -35,25 +36,38 @@ Open [Unity Package Manager], select _Game Management_ package and import [Defau
 This will import:
 
 - [Default Game Manager] - script which can be used as a template for your custom game manager.
-- [Default Game Manager Prefab] - prefab which can be used as a template for your custom game manager. By default, it has the [Default Game Manager] component.
-- [Default Game Manager Settings] - settings asset used to define how the [Default Game Manager] should load.
+- [Default Game Manager Prefab] - prefab which can be used as a template for your game manager prefab.
+- [Default Game Manager Settings Profile] - asset which defines how the [Default Game Manager] should load.
 
-After importing, hit play and the [Default Game Manager] should instantiate and be ready to go!
+After importing, open the [Game Manager Settings] asset (located at `Assets/Settings/GameManagerSettings.asset` by default) and add [Default Game Manager Settings Profile] to the **Profiles** field. Also make sure this profile is active:
+
+<p align="center">
+  <img hspace="2%" src="game-manager-settings.png"/>
+</p>
+
+Run the game!
 
 ## Game Manager Settings
 
-Regardless if you use a [Game Manager] from [Samples~] or a custom one, you'll need to define a [Game Manager Settings] asset. This asset will be created automatically in `Resources` directory by the game management code. However, if that doesn't happen, right-click anywhere in the _Project Window_ and select _Create/CHARK/Game Management/Game Manager Settings_ and create it manually:
+[Game Manager Settings] asset will be created automatically for you when you install this package. The default location is at `Assets/Settings/GameManagerSettings.asset` but you can move it anywhere in your project.
+
+[Game Manager Settings] asset defines which [Game Manager] should load and how. If there are more than one profiles added to this asset, the first profile which is active will be used. If no profiles are active or the list is empty, a no-op default profile will be utilized.
+
+When you create this asset for the first time, it will have no **Profiles** added. To override the defaults you'll need to define a custom [Game Manager Settings Profile] asset, configure it and add to this list. You can create [Game Manager Settings Profile] assets the following way:
+
+- Right-click anywhere in the _Project Window_ and select _Create/CHARK/Game Management/Game Manager Settings Profile_.
+- Add it to the [Game Manager Settings] asset **Profiles** list.
 
 <p align="center">
-  <img src="settings.png"/>
+  <img hspace="2%" src="game-manager-settings-profile.png"/>
 </p>
 
-Available properties for customization:
+Available properties for customization on [Game Manager Settings Profile]:
 
-- **Is Active Settings** - useful when you have multiple [Game Manager Settings] assets. You can use this field to define which settings asset should be used.
+- **Is Active Profile** - useful when you have multiple [Game Manager Settings Profile] assets. You can use this field to define which settings asset should be used.
 - **Is Instantiate Automatically** - should [Game Manager] be instantiated automatically when the game starts. Disable this if you want to manage the lifecycle manually.
+- **Instantiation Mode** - when to load the [Game Manager], for more info see [InitializeOnLoadAttribute](https://docs.unity3d.com/ScriptReference/InitializeOnLoadAttribute.html).
 - **Game Manager Prefab** - [Game Manager] prefab to instantiate when the game starts, used when **Is Instantiate Automatically** is set to `true`.
-- **Load Type** - when to load the [Game Manager], for more info see [InitializeOnLoadAttribute](https://docs.unity3d.com/ScriptReference/InitializeOnLoadAttribute.html).
 
 ## Scripting
 
@@ -93,11 +107,6 @@ internal sealed class MyGameManager : GameManager
         return "My Game Manager";
     }
     
-    protected override IGameManagerSettings GetGameManagerSettings()
-    {
-        // Provide custom settings implementation
-    }
-
     protected override IGameStorage CreateRuntimeGameStorage()
     {
         // Provide a custom storage implementation

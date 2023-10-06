@@ -1,9 +1,14 @@
 ﻿using UnityEngine;
 
-namespace CHARK.GameManagement
+namespace CHARK.GameManagement.Settings
 {
-    public interface IGameManagerSettings
+    internal interface IGameManagerSettingsProfile
     {
+        /// <summary>
+        /// Profile name.
+        /// </summary>
+        public string Name { get; }
+
         /// <summary>
         /// Should <see cref="GameManager"/> prefab instantiate automatically?
         /// </summary>
@@ -13,7 +18,7 @@ namespace CHARK.GameManagement
         /// When to load <see cref="GameManager"/> prefab when instantiating it automatically. Used
         /// only when <see cref="IsInstantiateAutomatically"/> is set to <c>true</c>.
         /// </summary>
-        public RuntimeInitializeLoadType LoadType { get; }
+        public InstantiationMode InstantiationMode { get; }
 
         /// <summary>
         /// Should <see cref="GameManager"/> use <see cref="Object.DontDestroyOnLoad"/>.

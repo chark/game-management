@@ -9,12 +9,12 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4f41518ec4cd48f0977f72ee2845e8ee, type: 3}
-  m_Name: DefaultGameManagerSettings
+  m_Script: {fileID: 11500000, guid: 0385d8bb430249ffb32a899ac14b96cb, type: 3}
+  m_Name: DefaultGameManagerSettingsProfile
   m_EditorClassIdentifier: 
-  isActiveSettings: 1
+  isActiveProfile: 1
   isInstantiateAutomatically: 1
   gameManagerPrefab: {fileID: 7741020879531430492, guid: 53f0da16259332b4090db44e5815a981, type: 3}
-  loadType: 1
+  instantiationMode: 0
   isDontDestroyOnLoad: 1
   isVerboseLogging: 0
