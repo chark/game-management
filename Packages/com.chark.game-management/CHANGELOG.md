@@ -10,6 +10,8 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 ### Added
 
 - `GameManagerSettingsProfile` which can be used to load a specific `GameManager` configuration via `GameManagerSettings`.
+- Better logging with a custom log message format.
+- Property Drawer for `GameManagerSettingsProfile`, this way it's easier to manage lists of profiles.
 
 ### Changed
 
