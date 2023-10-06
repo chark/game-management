@@ -15,6 +15,6 @@ MonoBehaviour:
   isActiveProfile: 1
   isInstantiateAutomatically: 1
   gameManagerPrefab: {fileID: 7741020879531430492, guid: 53f0da16259332b4090db44e5815a981, type: 3}
-  loadType: 1
+  instantiationMode: 0
   isDontDestroyOnLoad: 1
   isVerboseLogging: 0
