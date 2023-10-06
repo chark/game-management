@@ -8,6 +8,7 @@ namespace CHARK.GameManagement.Editor.Settings
     internal sealed class GameManagerSettingsProfilePropertyDrawer : PropertyDrawer
     {
         private const float ToggleWidth = 16f;
+
         public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
         {
             var profile = property.objectReferenceValue as GameManagerSettingsProfile;
@@ -19,6 +20,7 @@ namespace CHARK.GameManagement.Editor.Settings
                 GUI.backgroundColor = Color.green;
             }
 
+            // Active toggle
             EditorGUI.BeginChangeCheck();
 
             var togglePosition = position;
@@ -33,6 +35,7 @@ namespace CHARK.GameManagement.Editor.Settings
                 profile.IsActiveProfile = isActiveProfileNew;
             }
 
+            // Profile object field
             var propertyPosition = position;
             propertyPosition.width -= ToggleWidth;
             propertyPosition.x += ToggleWidth;
