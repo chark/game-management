@@ -40,7 +40,6 @@ namespace CHARK.GameManagement
 
             var isInitialized = currentGameManager == true;
 
-            name = GetGameManagerName();
             currentGameManager = this;
 
             if (isInitialized == false)
@@ -172,6 +171,7 @@ namespace CHARK.GameManagement
 
         private void InitializeCore()
         {
+            name = GetGameManagerName();
             runtimeStorage = CreateRuntimeGameStorage();
             resourceLoader = CreateResourceLoader();
             entityManager = CreateEntityManager();
