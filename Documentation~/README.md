@@ -37,15 +37,15 @@ This will import:
 
 - [Default Game Manager] - script which can be used as a template for your custom game manager.
 - [Default Game Manager Prefab] - prefab which can be used as a template for your game manager prefab.
-- [Default Game Manager Settings Profile] - defines how the [Default Game Manager] should load.
+- [Default Game Manager Settings Profile] - asset which defines how the [Default Game Manager] should load.
 
-After importing, open the [Game Manager Settings] asset (created at `Assets/Settings/GameManagerSettings.asset` by default) and add [Default Game Manager Settings Profile] to the **Profiles** field. Also make sure this profile is active.
+After importing, open the [Game Manager Settings] asset (located at `Assets/Settings/GameManagerSettings.asset` by default) and add [Default Game Manager Settings Profile] to the **Profiles** field. Also make sure this profile is active.
 
 Run the game!
 
 ## Game Manager Settings
 
-[Game Manager Settings] asset will be created automatically for you when you install this package. The default location is at: `Assets/Settings/GameManagerSettings.asset`. [Game Manager Settings] asset defines which [Game Manager] should load and how. If there are more than one profiles added to this asset, the first profile which is active will be used. If no profiles are active or the list is empty, a no-op default profile will be utilized.
+[Game Manager Settings] asset will be created automatically for you when you install this package. The default location is at `Assets/Settings/GameManagerSettings.asset` but you can move it anywhere in your project. [Game Manager Settings] asset defines which [Game Manager] should load and how. If there are more than one profiles added to this asset, the first profile which is active will be used. If no profiles are active or the list is empty, a no-op default profile will be utilized.
 
 When you create this asset for the first time, it will have no **Profiles** added. To override the defaults you'll need to define a custom [Game Manager Settings Profile] asset, configure it and add to this list. You can create [Game Manager Settings Profile] assets the following way:
 
