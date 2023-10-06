@@ -31,7 +31,7 @@ namespace CHARK.GameManagement.Editor.Settings
             if (state == PlayModeStateChange.ExitingEditMode)
             {
                 // We also need to update on play-mode change, otherwise assets added to preloaded
-                // list before hitting play don't persist.
+                // list after hitting the play button will not persist.
                 UpdatePreloadedAssets();
             }
         }
