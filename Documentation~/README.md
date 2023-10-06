@@ -36,17 +36,21 @@ Open [Unity Package Manager], select _Game Management_ package and import [Defau
 This will import:
 
 - [Default Game Manager] - script which can be used as a template for your custom game manager.
-- [Default Game Manager Prefab] - prefab which can be used as a template for your custom game manager. By default, it has the [Default Game Manager] component.
-- [Default Game Manager Settings Profile] - settings asset used to define how the [Default Game Manager] should load.
+- [Default Game Manager Prefab] - prefab which can be used as a template for your game manager prefab.
+- [Default Game Manager Settings Profile] - defines how the [Default Game Manager] should load.
 
-After importing, hit play! The [Default Game Manager] and the [Game Manager Settings] asset should be created automatically with correct profiles from the samples.
+After importing, open the [Game Manager Settings] asset (created at `Assets/Settings/GameManagerSettings.asset` by default) and add [Default Game Manager Settings Profile] to the **Profiles** field. Also make sure this profile is active.
+
+Run the game!
 
 ## Game Manager Settings
 
-When using a custom [Game Manager], you'll need to define a [Game Manager Settings Profile] asset to define how your manager should load:
+[Game Manager Settings] asset will be created automatically for you when you install this package. The default location is at: `Assets/Settings/GameManagerSettings.asset`. [Game Manager Settings] asset defines which [Game Manager] should load and how. If there are more than one profiles added to this asset, the first profile which is active will be used. If no profiles are active or the list is empty, a no-op default profile will be utilized.
+
+When you create this asset for the first time, it will have no **Profiles** added. To override the defaults you'll need to define a custom [Game Manager Settings Profile] asset, configure it and add to this list. You can create [Game Manager Settings Profile] assets the following way:
 
 - Right-click anywhere in the _Project Window_ and select _Create/CHARK/Game Management/Game Manager Settings Profile_.
-- Add it to the [Game Manager Settings] asset **Profiles** list. If you can't find the [Game Manager Settings] asset, run your game, and it should be automatically created at `Assets/Resources/GameManagerSettings.asset` path.
+- Add it to the [Game Manager Settings] asset **Profiles** list.
 
 <p align="center">
   <img hspace="2%" width="30%" src="game-manager-settings.png"/>
