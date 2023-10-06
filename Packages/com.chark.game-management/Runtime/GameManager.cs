@@ -166,7 +166,7 @@ namespace CHARK.GameManagement
         protected virtual IEntityManager CreateEntityManager()
         {
             var profile = Settings.ActiveProfile;
-            return new EntityManager(profile.IsVerboseLogging);
+            return new EntityManager(profile);
         }
 
         /// <returns>

@@ -1,20 +1,20 @@
 ﻿using System;
 using System.Collections.Generic;
+using CHARK.GameManagement.Settings;
 using CHARK.GameManagement.Utilities;
-using UnityEngine;
 
 namespace CHARK.GameManagement.Entities
 {
     internal sealed class EntityManager : IEntityManager
     {
-        private readonly List<object> entities = new List<object>();
-        private readonly bool isVerboseLogging;
+        private readonly List<object> entities = new();
+        private readonly IGameManagerSettingsProfile profile;
 
         public IReadOnlyList<object> Entities => entities;
 
-        public EntityManager(bool isVerboseLogging = false)
+        public EntityManager(IGameManagerSettingsProfile profile)
         {
-            this.isVerboseLogging = isVerboseLogging;
+            this.profile = profile;
         }
 
         public bool AddEntity<TEntity>(TEntity entity) where TEntity : class
@@ -27,7 +27,7 @@ namespace CHARK.GameManagement.Entities
             }
 #endif
 
-            if (isVerboseLogging)
+            if (profile.IsVerboseLogging)
             {
                 var entityType = entity.GetType();
                 var entityName = entityType.Name;
@@ -58,7 +58,7 @@ namespace CHARK.GameManagement.Entities
                     continue;
                 }
 
-                if (isVerboseLogging)
+                if (profile.IsVerboseLogging)
                 {
                     var entityType = entity.GetType();
                     var entityName = entityType.Name;
