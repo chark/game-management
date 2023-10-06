@@ -12,9 +12,9 @@ namespace CHARK.GameManagement.Utilities
         internal static void LogDebug(string message, Type owner)
         {
 #if UNITY_EDITOR
-            Debug.Log($"<b><color=cyan>{owner.Name}</color></b>: {message}");
+            Debug.Log($"[<b><color=cyan>{owner.Name}</color></b>]: {message}");
 #else
-            Debug.Log($"{owner.Name}: {message}");
+            Debug.Log($"[{owner.Name}]: {message}");
 #endif
         }
 
@@ -25,18 +25,18 @@ namespace CHARK.GameManagement.Utilities
                 : owner.name;
 
 #if UNITY_EDITOR
-            Debug.Log($"<b><color=cyan>{name}</color></b>: {message}", owner);
+            Debug.Log($"[<b><color=cyan>{name}</color></b>]: {message}", owner);
 #else
-            Debug.Log($"{name}: {message}", owner);
+            Debug.Log($"[{name}]: {message}", owner);
 #endif
         }
 
         internal static void LogWarning(string message, Type owner)
         {
 #if UNITY_EDITOR
-            Debug.LogWarning($"<b><color=yellow>{owner.Name}</color></b>: {message}");
+            Debug.LogWarning($"[<b><color=yellow>{owner.Name}</color></b>]: {message}");
 #else
-            Debug.LogWarning($"{owner.Name}: {message}");
+            Debug.LogWarning($"[{owner.Name}]: {message}");
 #endif
         }
 
@@ -47,18 +47,18 @@ namespace CHARK.GameManagement.Utilities
                 : owner.name;
 
 #if UNITY_EDITOR
-            Debug.LogWarning($"<b><color=orange>{name}</color></b>: {message}", owner);
+            Debug.LogWarning($"[<b><color=orange>{name}</color></b>]: {message}", owner);
 #else
-            Debug.LogWarning($"{name}: {message}", owner);
+            Debug.LogWarning($"[{name}]: {message}", owner);
 #endif
         }
 
         internal static void LogError(string message, Type owner)
         {
 #if UNITY_EDITOR
-            Debug.LogError($"<b><color=red>{owner.Name}</color></b>: {message}");
+            Debug.LogError($"[<b><color=red>{owner.Name}</color></b>]: {message}");
 #else
-            Debug.LogError($"{owner.Name}: {message}");
+            Debug.LogError($"[{owner.Name}]: {message}");
 #endif
         }
 
@@ -69,9 +69,9 @@ namespace CHARK.GameManagement.Utilities
                 : owner.name;
 
 #if UNITY_EDITOR
-            Debug.LogError($"<b><color=red>{name}</color></b>: {message}", owner);
+            Debug.LogError($"[<b><color=red>{name}</color></b>]: {message}", owner);
 #else
-            Debug.LogError($"{name}: {message}", owner);
+            Debug.LogError($"[{name}]: {message}", owner);
 #endif
         }
     }
