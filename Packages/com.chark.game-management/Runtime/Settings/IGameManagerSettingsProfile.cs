@@ -5,6 +5,11 @@ namespace CHARK.GameManagement.Settings
     internal interface IGameManagerSettingsProfile
     {
         /// <summary>
+        /// Profile name.
+        /// </summary>
+        public string Name { get; }
+
+        /// <summary>
         /// Should <see cref="GameManager"/> prefab instantiate automatically?
         /// </summary>
         public bool IsInstantiateAutomatically { get; }

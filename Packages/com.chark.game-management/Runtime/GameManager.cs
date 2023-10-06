@@ -5,6 +5,7 @@ using CHARK.GameManagement.Messaging;
 using CHARK.GameManagement.Settings;
 using CHARK.GameManagement.Storage;
 using CHARK.GameManagement.Systems;
+using CHARK.GameManagement.Utilities;
 using UnityEngine;
 
 namespace CHARK.GameManagement
@@ -21,6 +22,8 @@ namespace CHARK.GameManagement
             DefaultGameStorage.Instance;
 #endif
 
+        private static GameManagerSettings Settings => GameManagerSettings.Instance;
+
         private bool isSystemsInitialized;
 
         private IGameStorage runtimeStorage;
@@ -33,7 +36,7 @@ namespace CHARK.GameManagement
             if (currentGameManager && currentGameManager != this)
             {
                 var gameManagerTypeName = GetType().Name;
-                Debug.LogWarning($"{gameManagerTypeName} is already initialized", this);
+                Logging.LogWarning($"{gameManagerTypeName} is already initialized", this);
                 Destroy(gameObject);
                 return;
             }
@@ -46,7 +49,12 @@ namespace CHARK.GameManagement
             {
                 InitializeGameManager();
 
-                var profile = GameManagerSettings.ActiveProfile;
+                var profile = Settings.ActiveProfile;
+                if (profile.IsVerboseLogging)
+                {
+                    Logging.LogDebug($"{GetGameManagerName()} initialized", this);
+                }
+
                 if (profile.IsDontDestroyOnLoad)
                 {
                     DontDestroyOnLoad(gameObject);
@@ -68,10 +76,19 @@ namespace CHARK.GameManagement
         {
             OnBeforeDestroy();
 
-            var systems = entityManager.GetEntities<ISystem>();
-            foreach (var system in systems)
+            if (entityManager != null)
             {
-                RemoveSystem(system);
+                var systems = entityManager.GetEntities<ISystem>();
+                foreach (var system in systems)
+                {
+                    RemoveSystem(system);
+                }
+            }
+
+            var profile = Settings.ActiveProfile;
+            if (profile.IsVerboseLogging)
+            {
+                Logging.LogDebug($"{GetGameManagerName()} disposed", this);
             }
         }
 
@@ -101,7 +118,7 @@ namespace CHARK.GameManagement
         /// </returns>
         protected virtual string GetGameManagerName()
         {
-            return name;
+            return GetType().Name;
         }
 
         /// <summary>
@@ -148,7 +165,7 @@ namespace CHARK.GameManagement
         /// </returns>
         protected virtual IEntityManager CreateEntityManager()
         {
-            var profile = GameManagerSettings.ActiveProfile;
+            var profile = Settings.ActiveProfile;
             return new EntityManager(profile.IsVerboseLogging);
         }
 
@@ -191,13 +208,13 @@ namespace CHARK.GameManagement
                     continue;
                 }
 
-                var profile = GameManagerSettings.ActiveProfile;
+                var profile = Settings.ActiveProfile;
                 if (profile.IsVerboseLogging)
                 {
                     var systemType = entity.GetType();
                     var systemName = systemType.Name;
 
-                    Debug.Log($"Initializing system {systemName}", this);
+                    Logging.LogDebug($"Initializing system {systemName}", this);
                 }
 
                 system.OnInitialized();

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using CHARK.GameManagement.Utilities;
 using UnityEngine;
 
 namespace CHARK.GameManagement.Messaging
@@ -14,7 +15,7 @@ namespace CHARK.GameManagement.Messaging
 #if UNITY_EDITOR
             if (message == null)
             {
-                Debug.LogError($"Message of type {typeof(TMessage)} cannot be null");
+                Logging.LogError($"Message of type {typeof(TMessage)} cannot be null", GetType());
                 return;
             }
 #endif
@@ -34,7 +35,7 @@ namespace CHARK.GameManagement.Messaging
 #if UNITY_EDITOR
             if (listener == null)
             {
-                Debug.LogError($"Listener of type {typeof(TMessage)} cannot be null");
+                Logging.LogError($"Listener of type {typeof(TMessage)} cannot be null", GetType());
                 return;
             }
 #endif
@@ -58,7 +59,7 @@ namespace CHARK.GameManagement.Messaging
 #if UNITY_EDITOR
             if (listener == null)
             {
-                Debug.LogError($"Listener of type {typeof(TMessage)} cannot be null");
+                Logging.LogError($"Listener of type {typeof(TMessage)} cannot be null", GetType());
                 return;
             }
 #endif

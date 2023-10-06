@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using CHARK.GameManagement.Utilities;
 using UnityEngine;
 
 namespace CHARK.GameManagement.Entities
@@ -21,7 +22,7 @@ namespace CHARK.GameManagement.Entities
 #if UNITY_EDITOR
             if (entity == null)
             {
-                Debug.LogError("Entity cannot be null");
+                Logging.LogError("Entity cannot be null", GetType());
                 return false;
             }
 #endif
@@ -31,7 +32,7 @@ namespace CHARK.GameManagement.Entities
                 var entityType = entity.GetType();
                 var entityName = entityType.Name;
 
-                Debug.Log($"Adding entity {entityName}");
+                Logging.LogDebug($"Adding entity {entityName}", GetType());
             }
 
             entities.Add(entity);
@@ -43,7 +44,7 @@ namespace CHARK.GameManagement.Entities
 #if UNITY_EDITOR
             if (entity == null)
             {
-                Debug.LogError("Entity cannot be null");
+                Logging.LogError("Entity cannot be null", GetType());
                 return false;
             }
 #endif
@@ -62,7 +63,7 @@ namespace CHARK.GameManagement.Entities
                     var entityType = entity.GetType();
                     var entityName = entityType.Name;
 
-                    Debug.Log($"Removing entity {entityName}");
+                    Logging.LogDebug($"Removing entity {entityName}", GetType());
                 }
 
                 entities.RemoveAt(index);

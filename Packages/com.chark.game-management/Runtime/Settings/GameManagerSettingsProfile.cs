@@ -74,6 +74,19 @@ namespace CHARK.GameManagement.Settings
         [SerializeField]
         private bool isVerboseLogging;
 
+        public string Name
+        {
+            get
+            {
+                if (string.IsNullOrWhiteSpace(name))
+                {
+                    return GetType().Name;
+                }
+
+                return name;
+            }
+        }
+
         internal bool IsActiveProfile
         {
             get => isActiveProfile;
