@@ -9,10 +9,10 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4f41518ec4cd48f0977f72ee2845e8ee, type: 3}
-  m_Name: CountersGameManagerSettings
+  m_Script: {fileID: 11500000, guid: 0385d8bb430249ffb32a899ac14b96cb, type: 3}
+  m_Name: CountersGameManagerSettingsProfile
   m_EditorClassIdentifier: 
-  isActiveSettings: 1
+  isActiveProfile: 1
   isInstantiateAutomatically: 1
   gameManagerPrefab: {fileID: 3439766572742541658, guid: fbd9ca922a2c865418c9ea2b1eba4434, type: 3}
   loadType: 1

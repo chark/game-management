@@ -93,11 +93,6 @@ internal sealed class MyGameManager : GameManager
         return "My Game Manager";
     }
     
-    protected override IGameManagerSettings GetGameManagerSettings()
-    {
-        // Provide custom settings implementation
-    }
-
     protected override IGameStorage CreateRuntimeGameStorage()
     {
         // Provide a custom storage implementation

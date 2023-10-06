@@ -1,6 +1,8 @@
-﻿using CHARK.GameManagement.Assets;
+﻿using System;
+using CHARK.GameManagement.Assets;
 using CHARK.GameManagement.Entities;
 using CHARK.GameManagement.Messaging;
+using CHARK.GameManagement.Settings;
 using CHARK.GameManagement.Storage;
 using CHARK.GameManagement.Systems;
 using UnityEngine;
@@ -26,63 +28,6 @@ namespace CHARK.GameManagement
         private IEntityManager entityManager;
         private IMessageBus messageBus;
 
-        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
-        private static void OnSubsystemRegistration()
-        {
-            OnInstantiate(RuntimeInitializeLoadType.SubsystemRegistration);
-        }
-
-        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterAssembliesLoaded)]
-        private static void OnAfterAssembliesLoaded()
-        {
-            OnInstantiate(RuntimeInitializeLoadType.AfterAssembliesLoaded);
-        }
-
-        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
-        private static void OnAfterSceneLoad()
-        {
-            OnInstantiate(RuntimeInitializeLoadType.AfterSceneLoad);
-        }
-
-        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
-        private static void OnBeforeSceneLoad()
-        {
-            OnInstantiate(RuntimeInitializeLoadType.BeforeSceneLoad);
-        }
-
-        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSplashScreen)]
-        private static void OnBeforeSplashScreen()
-        {
-            OnInstantiate(RuntimeInitializeLoadType.BeforeSplashScreen);
-        }
-
-        private static void OnInstantiate(RuntimeInitializeLoadType targetLoadType)
-        {
-            var settings = GameManagerSettings.Instance;
-            if (settings.IsInstantiateAutomatically == false)
-            {
-                return;
-            }
-
-            var settingsLoadType = settings.LoadType;
-            if (settingsLoadType != targetLoadType)
-            {
-                return;
-            }
-
-            if (settings.TryGetGameManagerPrefab(out var prefab) == false)
-            {
-                Debug.LogError(
-                    $"Game Manager Prefab is not set in {nameof(GameManagerSettings)} settings"
-                );
-
-                return;
-            }
-
-            var newGameManager = Instantiate(prefab);
-            newGameManager.name = newGameManager.GetGameManagerName();
-        }
-
         private void Awake()
         {
             if (currentGameManager && currentGameManager != this)
@@ -95,14 +40,15 @@ namespace CHARK.GameManagement
 
             var isInitialized = currentGameManager == true;
 
+            name = GetGameManagerName();
             currentGameManager = this;
 
             if (isInitialized == false)
             {
                 InitializeGameManager();
 
-                var settings = GetGameManagerSettings();
-                if (settings.IsDontDestroyOnLoad)
+                var profile = GameManagerSettings.ActiveProfile;
+                if (profile.IsDontDestroyOnLoad)
                 {
                     DontDestroyOnLoad(gameObject);
                 }
@@ -149,15 +95,6 @@ namespace CHARK.GameManagement
         /// </summary>
         protected virtual void OnBeforeDestroy()
         {
-        }
-
-        /// <returns>
-        /// Custom <see cref="IGameManagerSettings"/> implementation. Defaults to
-        /// <see cref="GameManagerSettings.Instance"/>.
-        /// </returns>
-        protected virtual IGameManagerSettings GetGameManagerSettings()
-        {
-            return GameManagerSettings.Instance;
         }
 
         /// <returns>
@@ -212,8 +149,8 @@ namespace CHARK.GameManagement
         /// </returns>
         protected virtual IEntityManager CreateEntityManager()
         {
-            var settings = GetGameManagerSettings();
-            return new EntityManager(settings.IsVerboseLogging);
+            var profile = GameManagerSettings.ActiveProfile;
+            return new EntityManager(profile.IsVerboseLogging);
         }
 
         /// <returns>
@@ -254,8 +191,8 @@ namespace CHARK.GameManagement
                     continue;
                 }
 
-                var settings = GetGameManagerSettings();
-                if (settings.IsVerboseLogging)
+                var profile = GameManagerSettings.ActiveProfile;
+                if (profile.IsVerboseLogging)
                 {
                     var systemType = entity.GetType();
                     var systemName = systemType.Name;
@@ -280,8 +217,14 @@ namespace CHARK.GameManagement
 
             if (currentGameManager == false)
             {
-                Debug.LogError($"{nameof(GameManager)} is not initialized");
-                Debug.Break();
+                throw new Exception(
+                    $"{nameof(GameManager)} is not initialized."
+                    + $" Did you forget to add it to one of your scenes?"
+                    + $" If you're using automatic instantiation "
+                    + $" ({nameof(GameManagerSettingsProfile.IsInstantiateAutomatically)}),"
+                    + $" make sure the {nameof(GameManagerSettings)} contains a valid and active"
+                    + $" profile with a set {nameof(GameManager)} prefab."
+                );
             }
 #endif
 
