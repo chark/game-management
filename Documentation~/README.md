@@ -39,7 +39,7 @@ This will import:
 - [Default Game Manager Prefab] - prefab which can be used as a template for your custom game manager. By default, it has the [Default Game Manager] component.
 - [Default Game Manager Settings Profile] - settings asset used to define how the [Default Game Manager] should load.
 
-After importing, hit play and the [Default Game Manager] should instantiate and be ready to go!
+After importing, hit play! The [Default Game Manager] and the [Game Manager Settings] asset should be created automatically with correct profiles from the samples.
 
 ## Game Manager Settings
 
