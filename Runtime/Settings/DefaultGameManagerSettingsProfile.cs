@@ -11,13 +11,15 @@
         {
         }
 
-        public bool IsInstantiateAutomatically => false;
+        public string Name => nameof(DefaultGameManagerSettingsProfile);
+
+        public bool IsInstantiateAutomatically => true;
 
         public InstantiationMode InstantiationMode => InstantiationMode.BeforeSceneLoad;
 
-        public bool IsDontDestroyOnLoad => false;
+        public bool IsDontDestroyOnLoad => true;
 
-        public bool IsVerboseLogging => false;
+        public bool IsVerboseLogging => true;
 
         public bool TryGetGameManagerPrefab(out GameManager prefab)
         {

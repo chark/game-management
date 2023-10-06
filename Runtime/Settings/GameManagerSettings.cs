@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
-using System.IO;
 using System.Linq;
+using CHARK.GameManagement.Utilities;
 using UnityEngine;
 
 namespace CHARK.GameManagement.Settings
@@ -14,42 +14,70 @@ namespace CHARK.GameManagement.Settings
         [SerializeField]
         private List<GameManagerSettingsProfile> profiles = new();
 
-        private const string SettingsAssetPath = "Assets/Resources/" + SettingsResourcePath + ".asset";
-        private const string SettingsResourcePath = "GameManagerSettings";
-
         private static GameManagerSettings currentSettings;
+
+        /// <summary>
+        /// Current <see cref="GameManagerSettings"/> instance.
+        /// </summary>
+        internal static GameManagerSettings Instance
+        {
+            get
+            {
+                InitializeCurrentSettings();
+                return currentSettings;
+            }
+        }
 
         /// <summary>
         /// Currently active settings instance. Never <c>null</c>.
         /// </summary>
-        internal static IGameManagerSettingsProfile ActiveProfile
+        internal IGameManagerSettingsProfile ActiveProfile => GetActiveProfile();
+
+        /// <summary>
+        /// Add a set of new profiles to the <see cref="profiles"/> list. Duplicated profiles will
+        /// not be added.
+        /// </summary>
+        internal void AddProfiles(IEnumerable<GameManagerSettingsProfile> newProfiles)
         {
-            get
+            foreach (var newProfile in newProfiles)
             {
-                if (currentSettings == false)
+                if (profiles.Contains(newProfile))
                 {
-                    InitializeCurrentSettings();
+                    continue;
                 }
 
-                return GetActiveProfile(currentSettings);
+                profiles.Add(newProfile);
             }
         }
 
         private static void InitializeCurrentSettings()
         {
+            if (currentSettings)
+            {
+                return;
+            }
+
             if (TryGetSettings(out var settings))
             {
                 currentSettings = settings;
             }
             else
             {
-                currentSettings = CreateSettings();
+                Logging.LogWarning(
+                    $"Could not find {nameof(GameManagerSettings)}, using defaults",
+                    typeof(GameManagerSettings)
+                );
+
+                currentSettings = CreateInstance<GameManagerSettings>();
             }
         }
 
         private static bool TryGetSettings(out GameManagerSettings settings)
         {
-            var loadedSettings = Resources.Load<GameManagerSettings>(SettingsResourcePath);
+            var loadedSettings = Resources
+                .FindObjectsOfTypeAll<GameManagerSettings>()
+                .FirstOrDefault();
+
             if (loadedSettings)
             {
                 settings = loadedSettings;
@@ -60,46 +88,8 @@ namespace CHARK.GameManagement.Settings
             return false;
         }
 
-        private static GameManagerSettings CreateSettings()
+        private IGameManagerSettingsProfile GetActiveProfile()
         {
-            var settings = CreateInstance<GameManagerSettings>();
-            settings.profiles.AddRange(GetAvailableProfiles());
-
-#if UNITY_EDITOR
-            var directoryName = Path.GetDirectoryName(SettingsAssetPath);
-            if (string.IsNullOrWhiteSpace(directoryName) == false &&
-                Directory.Exists(directoryName) == false)
-            {
-                Directory.CreateDirectory(directoryName);
-            }
-
-            UnityEditor.AssetDatabase.CreateAsset(settings, SettingsAssetPath);
-            UnityEditor.AssetDatabase.SaveAssets();
-            UnityEditor.AssetDatabase.Refresh();
-
-            Debug.Log($"Created {nameof(GameManagerSettings)} at {SettingsAssetPath}");
-            return UnityEditor.AssetDatabase
-                .LoadAssetAtPath<GameManagerSettings>(SettingsAssetPath);
-#else
-            return settings;
-#endif
-        }
-
-        private static IEnumerable<GameManagerSettingsProfile> GetAvailableProfiles()
-        {
-#if UNITY_EDITOR
-            return UnityEditor.AssetDatabase
-                .FindAssets($"t:{nameof(GameManagerSettingsProfile)}")
-                .Select(UnityEditor.AssetDatabase.GUIDToAssetPath)
-                .Select(UnityEditor.AssetDatabase.LoadAssetAtPath<GameManagerSettingsProfile>);
-#else
-            return System.Array.Empty<GameManagerSettingsProfile>();
-#endif
-        }
-
-        private static IGameManagerSettingsProfile GetActiveProfile(GameManagerSettings settings)
-        {
-            var profiles = settings.profiles;
             if (profiles.Count == 0)
             {
                 return DefaultGameManagerSettingsProfile.Instance;
@@ -111,13 +101,6 @@ namespace CHARK.GameManagement.Settings
                 {
                     return profile;
                 }
-            }
-
-            var firstProfile = profiles[0];
-            if (firstProfile)
-            {
-                firstProfile.IsActiveProfile = true;
-                return firstProfile;
             }
 
             return DefaultGameManagerSettingsProfile.Instance;

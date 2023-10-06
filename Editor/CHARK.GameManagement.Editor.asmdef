@@ -1,0 +1,18 @@
+{
+    "name": "CHARK.GameManagement.Editor",
+    "rootNamespace": "CHARK.GameManagement",
+    "references": [
+        "CHARK.GameManagement"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": true,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
