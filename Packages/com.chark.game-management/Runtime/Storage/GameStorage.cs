@@ -34,6 +34,8 @@ namespace CHARK.GameManagement.Storage
                 return value;
             }
 
+            await UniTask.SwitchToMainThread();
+
             return default;
         }
 
