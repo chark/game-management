@@ -6,7 +6,7 @@ using NUnit.Framework;
 
 namespace CHARK.GameManagement.Tests.Editor
 {
-    internal abstract class GameStorageTest
+    internal abstract class StorageTest
     {
         private static readonly JsonSerializerSettings SerializerSettings = new()
         {
@@ -15,7 +15,7 @@ namespace CHARK.GameManagement.Tests.Editor
 
         private string Key => GetType().Name;
 
-        private IGameStorage storage;
+        private IStorage storage;
 
         [SetUp]
         public void SetUp()
@@ -147,7 +147,7 @@ namespace CHARK.GameManagement.Tests.Editor
         /// <returns>
         /// New storage instance.
         /// </returns>
-        protected abstract IGameStorage CreateStorage();
+        protected abstract IStorage CreateStorage();
 
         /// <returns>
         /// Raw json value retrieved by given <paramref name="key"/>.

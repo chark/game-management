@@ -7,6 +7,18 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [v0.0.3](https://github.com/chark/game-management/compare/v0.0.2...v0.0.3) - 2023-XX-XX
 
+### Added
+
+- `ISerializer` with `GameManager.TryDeserializeValue` and `GameManager.TrySerializeValue` methods, this can be used to serialize and deserialize data using internal `GameManager` serialization utilities.
+- `GameManager.DeleteRuntimeValueAsync` which can be used to delete data asynchronously.
+- `GameManager.GetResourceAsync` which can be used to retrieve resources from StreamingAssets directory.
+
+### Changed
+
+- Renamed `IResourceLoader` methods to use `Get*` prefix instead of `Load*` so its more consistent with other methods.
+- Renamed `IGameStorage` to `IStorage`.
+- Cancellation tokens can now be used in async methods.
+
 ### Fixed
 
 - `GameStorage.GetValueAsync` not switching back to main thread when no value is found.

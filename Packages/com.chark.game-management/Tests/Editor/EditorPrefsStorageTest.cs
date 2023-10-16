@@ -1,13 +1,14 @@
-﻿using CHARK.GameManagement.Storage;
+﻿using CHARK.GameManagement.Serialization;
+using CHARK.GameManagement.Storage;
 using UnityEditor;
 
 namespace CHARK.GameManagement.Tests.Editor
 {
-    internal sealed class EditorPrefsGameStorageTest : GameStorageTest
+    internal sealed class EditorPrefsStorageTest : StorageTest
     {
-        protected override IGameStorage CreateStorage()
+        protected override IStorage CreateStorage()
         {
-            return new EditorPrefsGameStorage();
+            return new EditorPrefsStorage(DefaultSerializer.Instance);
         }
 
         protected override string GetString(string key)

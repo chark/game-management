@@ -2,6 +2,7 @@
 using CHARK.GameManagement.Assets;
 using CHARK.GameManagement.Entities;
 using CHARK.GameManagement.Messaging;
+using CHARK.GameManagement.Serialization;
 using CHARK.GameManagement.Settings;
 using CHARK.GameManagement.Storage;
 using CHARK.GameManagement.Systems;
@@ -15,9 +16,9 @@ namespace CHARK.GameManagement
     {
         private static GameManager currentGameManager;
 
-        private static readonly IGameStorage EditorStorage =
+        private static readonly IStorage EditorStorage =
 #if UNITY_EDITOR
-            new EditorPrefsGameStorage($"{nameof(GameManager)}.");
+            new EditorPrefsStorage(DefaultSerializer.Instance, $"{nameof(GameManager)}.");
 #else
             DefaultGameStorage.Instance;
 #endif
@@ -26,7 +27,8 @@ namespace CHARK.GameManagement
 
         private bool isSystemsInitialized;
 
-        private IGameStorage runtimeStorage;
+        private ISerializer serializer;
+        private IStorage runtimeStorage;
         private IResourceLoader resourceLoader;
         private IEntityManager entityManager;
         private IMessageBus messageBus;
@@ -144,12 +146,24 @@ namespace CHARK.GameManagement
         }
 
         /// <returns>
-        /// New <see cref="IGameStorage"/> instance.
+        /// New <see cref="ISerializer"/> instance.
         /// </returns>
-        protected virtual IGameStorage CreateRuntimeGameStorage()
+        protected virtual ISerializer CreateSerializer()
+        {
+            return DefaultSerializer.Instance;
+        }
+
+        /// <returns>
+        /// New <see cref="IStorage"/> instance.
+        /// </returns>
+        protected virtual IStorage CreateRuntimeStorage()
         {
             var keyPrefix = $"{GetGameManagerName()}.";
-            return new FileGameStorage(keyPrefix, Application.persistentDataPath);
+            return new FileStorage(
+                serializer: serializer,
+                persistentDataPath: Application.persistentDataPath,
+                pathPrefix: keyPrefix
+            );
         }
 
         /// <returns>
@@ -157,7 +171,7 @@ namespace CHARK.GameManagement
         /// </returns>
         protected virtual IResourceLoader CreateResourceLoader()
         {
-            return new ResourceLoader();
+            return new ResourceLoader(serializer);
         }
 
         /// <returns>
@@ -189,7 +203,8 @@ namespace CHARK.GameManagement
         private void InitializeCore()
         {
             name = GetGameManagerName();
-            runtimeStorage = CreateRuntimeGameStorage();
+            serializer = CreateSerializer();
+            runtimeStorage = CreateRuntimeStorage();
             resourceLoader = CreateResourceLoader();
             entityManager = CreateEntityManager();
             messageBus = CreateMessageBus();

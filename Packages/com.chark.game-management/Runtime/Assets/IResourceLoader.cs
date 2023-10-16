@@ -1,4 +1,6 @@
 ﻿using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
 using UnityEngine;
 
 namespace CHARK.GameManagement.Assets
@@ -6,13 +8,26 @@ namespace CHARK.GameManagement.Assets
     public interface IResourceLoader
     {
         /// <returns>
-        /// Resources loaded from given <paramref name="path"/>.
+        /// Enumerable of resources retrieved from given <paramref name="path"/>.
         /// </returns>
-        public IEnumerable<TResource> LoadResources<TResource>(string path = null) where TResource : Object;
+        public IEnumerable<TResource> GetResources<TResource>(string path = null)
+            where TResource : Object;
 
         /// <returns>
-        /// Resource loaded from given <paramref name="path"/>.
+        /// <c>true</c> if <paramref name="resource"/> is retrieved from given
+        /// <paramref name="path"/> or <c>false</c> otherwise.
         /// </returns>
-        public TResource LoadResource<TResource>(string path) where TResource : Object;
+        public bool TryGetResource<TResource>(string path, out TResource resource)
+            where TResource : Object;
+
+        /// <returns>
+        /// Asset loaded asynchronously from given <paramref name="path"/>.
+        /// <p/>
+        /// <b>Note</b>, <paramref name="path"/> is relative to StreamingAssets directory.
+        /// </returns>
+        public Task<TResource> GetResourceAsync<TResource>(
+            string path,
+            CancellationToken cancellationToken = default
+        );
     }
 }
