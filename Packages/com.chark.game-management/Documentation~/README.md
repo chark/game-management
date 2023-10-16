@@ -180,6 +180,9 @@ await GameManager.SetRuntimeValueAsync("some-key", value);
 // Save a value synchronously
 GameManager.SetRuntimeValue("some-key", value);
 
+// Delete a value asynchronously
+await GameManager.DeleteRuntimeValueAsync("some-key");
+
 // Delete a value synchronously
 GameManager.DeleteRuntimeValue("some-key");
 
