@@ -20,7 +20,7 @@ namespace CHARK.GameManagement
 #if UNITY_EDITOR
             new EditorPrefsStorage(DefaultSerializer.Instance, $"{nameof(GameManager)}.");
 #else
-            DefaultGameStorage.Instance;
+            DefaultStorage.Instance;
 #endif
 
         private static GameManagerSettings Settings => GameManagerSettings.Instance;
