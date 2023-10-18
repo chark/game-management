@@ -53,12 +53,12 @@ namespace CHARK.GameManagement.Storage
                 return false;
             }
 
-            if (serializer.TryDeserializeValue(stringValue, out TValue deserializedValue))
+            if (serializer.TryDeserializeValue(stringValue, out TValue deserializedValue) == false)
             {
-                value = deserializedValue;
-                return true;
+                return false;
             }
 
+            value = deserializedValue;
             return true;
         }
 
