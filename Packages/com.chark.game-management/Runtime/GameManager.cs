@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using CHARK.GameManagement.Assets;
 using CHARK.GameManagement.Entities;
 using CHARK.GameManagement.Messaging;
@@ -20,7 +21,7 @@ namespace CHARK.GameManagement
 #if UNITY_EDITOR
             new EditorPrefsStorage(DefaultSerializer.Instance, $"{nameof(GameManager)}.");
 #else
-            DefaultStorage.Instance;
+            NullStorage.Instance;
 #endif
 
         private static GameManagerSettings Settings => GameManagerSettings.Instance;
@@ -158,11 +159,11 @@ namespace CHARK.GameManagement
         /// </returns>
         protected virtual IStorage CreateRuntimeStorage()
         {
-            var keyPrefix = $"{GetGameManagerName()}.";
             return new FileStorage(
                 serializer: serializer,
+                profile: Settings.ActiveProfile,
                 persistentDataPath: Application.persistentDataPath,
-                pathPrefix: keyPrefix
+                pathPrefix: "Data" + Path.DirectorySeparatorChar
             );
         }
 

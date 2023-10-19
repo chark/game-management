@@ -9,19 +9,22 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Added
 
-- `ISerializer` with `GameManager.TryDeserializeValue` and `GameManager.TrySerializeValue` methods, this can be used to serialize and deserialize data using internal `GameManager` serialization utilities.
-- `GameManager.DeleteRuntimeValueAsync` which can be used to delete data asynchronously.
-- `GameManager.GetResourceAsync` which can be used to retrieve resources from StreamingAssets directory.
+- `GameManager.TryDeserializeValue`, `GameManager.TrySerializeValue`, `GameManager.TryDeserializeStream` and `GameManager.TrySerializeStream` methods, these can be used to serialize and deserialize data using internal `GameManager` serialization utilities. You can customize this via `ISerializer` interface (see `CreateSerializer` method on `GameManager`).
+- `GameManager.DeleteDataAsync` which can be used to delete data asynchronously.
+- `GameManager.ReadResourceAsync` and `GameManager.ReadResourceStreamAsync` methods which can be used to retrieve resources from StreamingAssets directory.
+- `GameManager.ReadDataStream` and `GameManager.ReadDataStreamAsync` methods which can be used to read a `Stream` from a file on disk.
+- `GameManager.SaveDataStream` and `GameManager.SaveDataStreamAsync` methods which can be used to persist a `Stream` to disk.
 
 ### Changed
 
-- Renamed `IResourceLoader` methods to use `Get*` prefix instead of `Load*` so its more consistent with other methods.
+- Renamed some `IResourceLoader` methods to use `Get*` prefix instead of `Load*` so its more consistent with other methods. Methods which read from _StreamingAssets_ directory will use `Read*` prefix.
 - Renamed `IGameStorage` to `IStorage`.
-- Cancellation tokens can now be used in async methods.
+- Cancellation tokens can now be used in all async methods.
+- Renamed `IStorage` methods to use `Read*` and `Save*` prefixes to emphasise that these methods interact with data on dist.
 
 ### Fixed
 
-- `GameStorage.GetValueAsync` not switching back to main thread when no value is found.
+- `GameStorage.GetValueAsync` (now `GameStorage.ReadValueAsync`) not switching back to main thread when no value is found.
 
 ## [v0.0.2](https://github.com/chark/game-management/compare/v0.0.1...v0.0.2) - 2023-10-06
 

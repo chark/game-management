@@ -1,4 +1,6 @@
-﻿using System.Threading;
+﻿using System;
+using System.IO;
+using System.Threading;
 using System.Threading.Tasks;
 using CHARK.GameManagement.Serialization;
 using Cysharp.Threading.Tasks;
@@ -16,16 +18,50 @@ namespace CHARK.GameManagement.Storage
             this.pathPrefix = pathPrefix;
         }
 
-        public async Task<TValue> GetValueAsync<TValue>(
+        public virtual bool TryReadData<TValue>(string path, out TValue data)
+        {
+            data = default;
+
+            if (TryGetFullPath(path, out var fullPath) == false)
+            {
+                return false;
+            }
+
+            using var stream = ReadStream(fullPath);
+            if (stream.Length == 0)
+            {
+                return false;
+            }
+
+            if (serializer.TryDeserializeStream(stream, out TValue deserializedValue) == false)
+            {
+                return false;
+            }
+
+            data = deserializedValue;
+            return true;
+        }
+
+        public Stream ReadDataStream(string path)
+        {
+            if (TryGetFullPath(path, out var fullPath) == false)
+            {
+                return Stream.Null;
+            }
+
+            return ReadStream(fullPath);
+        }
+
+        public async Task<TValue> ReadDataAsync<TValue>(
             string path,
-            CancellationToken cancellationToken
+            CancellationToken cancellationToken = default
         )
         {
             await UniTask.SwitchToThreadPool();
 
             try
             {
-                if (TryGetValue<TValue>(path, out var value))
+                if (TryReadData<TValue>(path, out var value))
                 {
                     return value;
                 }
@@ -35,44 +71,24 @@ namespace CHARK.GameManagement.Storage
                 await UniTask.SwitchToMainThread(cancellationToken);
             }
 
-            return default;
+            throw new Exception($"Could not read data from path: {path}");
         }
 
-        public virtual bool TryGetValue<TValue>(string path, out TValue value)
-        {
-            value = default;
-
-            if (TryGetFormattedPath(path, out var formattedPath) == false)
-            {
-                return false;
-            }
-
-            var stringValue = GetString(formattedPath);
-            if (string.IsNullOrWhiteSpace(stringValue))
-            {
-                return false;
-            }
-
-            if (serializer.TryDeserializeValue(stringValue, out TValue deserializedValue) == false)
-            {
-                return false;
-            }
-
-            value = deserializedValue;
-            return true;
-        }
-
-        public async Task SetValueAsync<TValue>(
+        public async Task<Stream> ReadDataStreamAsync(
             string path,
-            TValue value,
-            CancellationToken cancellationToken
+            CancellationToken cancellationToken = default
         )
         {
+            if (TryGetFullPath(path, out var fullPath) == false)
+            {
+                return Stream.Null;
+            }
+
             await UniTask.SwitchToThreadPool();
 
             try
             {
-                SetValue(path, value);
+                return ReadStream(fullPath);
             }
             finally
             {
@@ -80,22 +96,84 @@ namespace CHARK.GameManagement.Storage
             }
         }
 
-        public virtual void SetValue<TValue>(string path, TValue value)
+        public virtual void SaveData<TValue>(string path, TValue data)
         {
-            if (TryGetFormattedPath(path, out var formattedPath) == false)
+            if (TryGetFullPath(path, out var fullPath) == false)
             {
                 return;
             }
 
-            if (serializer.TrySerializeValue(value, out var serializedValue) == false)
+            if (serializer.TrySerializeValue(data, out var serializedValue) == false)
             {
                 return;
             }
 
-            SetString(formattedPath, serializedValue);
+            SaveString(fullPath, serializedValue);
         }
 
-        public async Task DeleteValueAsync(string path, CancellationToken cancellationToken)
+        public void SaveDataStream(string path, Stream stream)
+        {
+            if (TryGetFullPath(path, out var fullPath) == false)
+            {
+                return;
+            }
+
+            SaveStream(fullPath, stream);
+        }
+
+        public async Task SaveDataAsync<TValue>(
+            string path,
+            TValue data,
+            CancellationToken cancellationToken = default
+        )
+        {
+            await UniTask.SwitchToThreadPool();
+
+            try
+            {
+                SaveData(path, data);
+            }
+            finally
+            {
+                await UniTask.SwitchToMainThread(cancellationToken);
+            }
+        }
+
+        public async Task SaveDataStreamAsync(
+            string path,
+            Stream stream,
+            CancellationToken cancellationToken = default
+        )
+        {
+            if (TryGetFullPath(path, out var fullPath) == false)
+            {
+                return;
+            }
+
+            await UniTask.SwitchToThreadPool();
+
+            try
+            {
+                SaveStream(fullPath, stream);
+            }
+            finally
+            {
+                await UniTask.SwitchToMainThread(cancellationToken);
+            }
+        }
+
+        public void DeleteData(string path)
+        {
+            if (TryGetFullPath(path, out var fullPath))
+            {
+                Delete(fullPath);
+            }
+        }
+
+        public async Task DeleteDataAsync(
+            string path,
+            CancellationToken cancellationToken = default
+        )
         {
             await UniTask.SwitchToThreadPool();
 
@@ -109,39 +187,36 @@ namespace CHARK.GameManagement.Storage
             }
         }
 
-        public void DeleteValue(string path)
-        {
-            if (TryGetFormattedPath(path, out var formattedPath))
-            {
-                Delete(formattedPath);
-            }
-        }
-
         /// <returns>
-        /// String retrieved using given <paramref name="path"/>.
+        /// Stream retrieved using given <paramref name="path"/>.
         /// </returns>
-        protected abstract string GetString(string path);
+        protected abstract Stream ReadStream(string path);
 
         /// <summary>
-        /// Store a <paramref name="value"/> at given <paramref name="path"/>.
+        /// Store a <paramref name="value"/> to given <paramref name="path"/>.
         /// </summary>
-        protected abstract void SetString(string path, string value);
+        protected abstract void SaveString(string path, string value);
+
+        /// <summary>
+        /// Store a <paramref name="stream"/> to given <paramref name="path"/>.
+        /// </summary>
+        protected abstract void SaveStream(string path, Stream stream);
 
         /// <summary>
         /// Delete value at given <paramref name="path"/>.
         /// </summary>
         protected abstract void Delete(string path);
 
-        private bool TryGetFormattedPath(string path, out string formattedPath)
+        private bool TryGetFullPath(string path, out string fullPath)
         {
-            formattedPath = default;
+            fullPath = default;
 
             if (string.IsNullOrWhiteSpace(path))
             {
                 return false;
             }
 
-            formattedPath = pathPrefix + path;
+            fullPath = pathPrefix + path;
             return true;
         }
     }

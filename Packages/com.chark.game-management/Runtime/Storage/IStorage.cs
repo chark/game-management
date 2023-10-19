@@ -1,4 +1,5 @@
-﻿using System.Threading;
+﻿using System.IO;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace CHARK.GameManagement.Storage
@@ -9,44 +10,81 @@ namespace CHARK.GameManagement.Storage
     public interface IStorage
     {
         /// <returns>
-        /// Value from persistent game storage asynchronously or <c>default</c> if no value is
-        /// could be retrieved.
+        /// <c>true</c> if persisted <paramref name="data"/> of type <see cref="TData"/> is
+        /// retrieved from given <paramref name="path"/> or <c>false</c> otherwise.
         /// </returns>
-        public Task<TValue> GetValueAsync<TValue>(
-            string path,
-            CancellationToken cancellationToken = default
-        );
-
-        /// <summary>
-        /// Get a value from persistent game storage.
-        /// </summary>
-        public bool TryGetValue<TValue>(string path, out TValue value);
+        public bool TryReadData<TData>(string path, out TData data);
 
         /// <returns>
-        /// Save a value to persistent game storage asynchronously.
+        /// Persisted data <see cref="Stream"/> retrieved from given <paramref name="path"/>
+        /// or an empty stream if no data is could be retrieved.
         /// </returns>
-        public Task SetValueAsync<TValue>(
-            string path,
-            TValue value,
-            CancellationToken cancellationToken = default
-        );
+        public Stream ReadDataStream(string path);
 
-        /// <summary>
-        /// Save a value to persistent game storage.
-        /// </summary>
-        public void SetValue<TValue>(string path, TValue value);
-
-        /// <summary>
-        /// Delete value at given <paramref name="path"/> asynchronously.
-        /// </summary>
-        public Task DeleteValueAsync(
+        /// <returns>
+        /// Persisted <see cref="TData"/> retrieved from given <paramref name="path"/>
+        /// asynchronously or <c>default</c> if no data is could be retrieved.
+        /// </returns>
+        /// <exception cref="System.Exception">
+        /// if <see cref="TData"/> could not be retrieved.
+        /// </exception>
+        public Task<TData> ReadDataAsync<TData>(
             string path,
             CancellationToken cancellationToken = default
         );
 
+        /// <returns>
+        /// Persisted data <see cref="Stream"/> retrieved from given <paramref name="path"/>
+        /// asynchronously or an empty stream if no data is could be retrieved.
+        /// </returns>
+        public Task<Stream> ReadDataStreamAsync(
+            string path,
+            CancellationToken cancellationToken = default
+        );
+
         /// <summary>
-        /// Delete value at given <paramref name="path"/>.
+        /// Persist <paramref name="data"/> of type <see cref="TData"/> to to given
+        /// <paramref name="path"/>.
         /// </summary>
-        public void DeleteValue(string path);
+        public void SaveData<TData>(string path, TData data);
+
+        /// <summary>
+        /// Persist <paramref name="stream"/> to <paramref name="path"/>.
+        /// asynchronously.
+        /// </summary>
+        public void SaveDataStream(string path, Stream stream);
+
+        /// <summary>
+        /// Persist <paramref name="data"/> of type <see cref="TData"/> to <paramref name="path"/>.
+        /// asynchronously.
+        /// </summary>
+        public Task SaveDataAsync<TData>(
+            string path,
+            TData data,
+            CancellationToken cancellationToken = default
+        );
+
+        /// <summary>
+        /// Persist <paramref name="stream"/> of data to given <paramref name="path"/>.
+        /// asynchronously.
+        /// </summary>
+        public Task SaveDataStreamAsync(
+            string path,
+            Stream stream,
+            CancellationToken cancellationToken = default
+        );
+
+        /// <summary>
+        /// Delete persisted data from given <paramref name="path"/>.
+        /// </summary>
+        public void DeleteData(string path);
+
+        /// <summary>
+        /// Delete persisted data from given <paramref name="path"/> asynchronously.
+        /// </summary>
+        public Task DeleteDataAsync(
+            string path,
+            CancellationToken cancellationToken = default
+        );
     }
 }

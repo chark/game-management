@@ -1,4 +1,6 @@
 ﻿using System.Globalization;
+using System.IO;
+using System.Text;
 using CHARK.GameManagement.Storage;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
@@ -13,7 +15,7 @@ namespace CHARK.GameManagement.Tests.Editor
             ContractResolver = new CamelCasePropertyNamesContractResolver(),
         };
 
-        private string Key => GetType().Name;
+        private string Path => GetType().Name;
 
         private IStorage storage;
 
@@ -26,122 +28,201 @@ namespace CHARK.GameManagement.Tests.Editor
         [TearDown]
         public void TearDown()
         {
-            DeleteString(Key);
+            DeleteString(Path);
         }
 
         [Test]
-        public void ShouldGetPrimitiveValue()
+        public void ShouldReadPrimitiveData()
         {
             // Given:
-            // - Persisted primitive float value of 1.
-            const float expectedValue = 1f;
-            SetString(Key, expectedValue.ToString(CultureInfo.InvariantCulture));
+            // - Persisted primitive float data of 1.
+            const float expectedData = 1f;
+            SaveString(Path, expectedData.ToString(CultureInfo.InvariantCulture));
 
             // When:
-            // - Retrieving value from storage.
-            if (storage.TryGetValue(Key, out float actualValue) == false)
+            // - Retrieving data from storage.
+            if (storage.TryReadData(Path, out float actualData) == false)
             {
-                Assert.Fail("Could not get Runtime primitive value");
+                Assert.Fail($"Could not {nameof(storage.TryReadData)} from primitive");
             }
 
             // Then:
-            // - Value should be retrieved properly.
-            Assert.AreEqual(expectedValue, actualValue);
+            // - Data should be retrieved properly.
+            Assert.AreEqual(expectedData, actualData);
         }
 
         [Test]
-        public void ShouldGetStructValue()
+        public void ShouldReadStructData()
         {
             // Given:
-            // - Persisted struct value.
-            var expectedValue = new TestStructData("hello");
-            SetString(Key, SerializeObject(expectedValue));
+            // - Persisted struct data.
+            var expectedData = new TestStructData("hello");
+            SaveString(Path, SerializeObject(expectedData));
 
             // When:
-            // - Retrieving value from storage.
-            if (storage.TryGetValue(Key, out TestStructData actualValue) == false)
+            // - Retrieving data from storage.
+            if (storage.TryReadData(Path, out TestStructData actualData) == false)
             {
-                Assert.Fail("Could not get Runtime struct value");
+                Assert.Fail($"Could not {nameof(storage.TryReadData)} from struct");
             }
 
             // Then:
-            // - Value (contents) should be retrieved properly.
-            Assert.AreEqual(expectedValue.Text, actualValue.Text);
+            // - Data (contents) should be retrieved properly.
+            Assert.AreEqual(expectedData.Text, actualData.Text);
         }
 
         [Test]
-        public void ShouldGetObjectValue()
+        public void ShouldReadObjectData()
         {
             // Given:
-            // - Persisted object value.
-            var expectedValue = new TestObjectData("hello");
-            SetString(Key, SerializeObject(expectedValue));
+            // - Persisted object data.
+            var expectedData = new TestObjectData("hello");
+            SaveString(Path, SerializeObject(expectedData));
 
             // When:
-            // - Retrieving value from storage.
-            if (storage.TryGetValue(Key, out TestObjectData actualValue) == false)
+            // - Retrieving data from storage.
+            if (storage.TryReadData(Path, out TestObjectData actualData) == false)
             {
-                Assert.Fail("Could not get Runtime object value");
+                Assert.Fail($"Could not {nameof(storage.TryReadData)} from object");
             }
 
             // Then:
-            // - Value (contents) should be retrieved properly.
-            Assert.AreEqual(expectedValue.Text, actualValue.Text);
+            // - Data (contents) should be retrieved properly.
+            Assert.AreEqual(expectedData.Text, actualData.Text);
         }
 
         [Test]
-        public void ShouldSetPrimitiveValue()
+        public void ShouldReadNoDataOnMissingData()
         {
             // Given:
-            // - Primitive float value of 1.
-            const float expectedValue = 1f;
+            // - No persisted data.
+            DeleteString(Path);
 
             // When:
-            // - Persisting value.
-            storage.SetValue(Key, expectedValue);
+            // - Retrieving data from storage.
+            var isRead = storage.TryReadData<string>(Path, out var data);
 
             // Then:
-            // - Value should be persisted properly.
-            var actualValue = float.Parse(GetString(Key));
-            Assert.AreEqual(expectedValue, actualValue);
+            // - Data should not be retrieved.
+            Assert.IsFalse(isRead);
+            Assert.IsNull(data);
         }
 
         [Test]
-        public void ShouldSetStructValue()
+        public void ShouldReadStreamObjectData()
         {
             // Given:
-            // - Struct value.
-            var value = new TestStructData("hello there");
+            // - Persisted object data.
+            var expectedData = new TestObjectData("hello");
+            SaveString(Path, SerializeObject(expectedData));
 
             // When:
-            // - Persisting value.
-            storage.SetValue(Key, value);
+            // - Retrieving data from storage.
+            var actualStream = storage.ReadDataStream(Path);
+            if (actualStream.Length == 0)
+            {
+                Assert.Fail($"Could not {nameof(storage.ReadDataStream)} from object");
+            }
 
             // Then:
-            // - Value should be persisted properly.
-            var expectedValue = SerializeObject(value);
-            var actualValue = GetString(Key);
+            // - Data (contents) should be retrieved properly.
+            var actualData = DeserializeObject<TestObjectData>(actualStream);
 
-            Assert.AreEqual(expectedValue, actualValue);
+            Assert.AreEqual(expectedData.Text, actualData.Text);
         }
 
         [Test]
-        public void ShouldSetObjectValue()
+        public void ShouldReadEmptyStreamOnMissingData()
         {
             // Given:
-            // - Object value.
-            var value = new TestObjectData("hello there");
+            // - No persisted data.
+            DeleteString(Path);
 
             // When:
-            // - Persisting value.
-            storage.SetValue(Key, value);
+            // - Retrieving data from storage.
+            var stream = storage.ReadDataStream(Path);
 
             // Then:
-            // - Value should be persisted properly.
-            var expectedValue = SerializeObject(value);
-            var actualValue = GetString(Key);
+            // - Data (contents) should be retrieved properly.
+            Assert.AreEqual(0, stream.Length);
+        }
 
-            Assert.AreEqual(expectedValue, actualValue);
+        [Test]
+        public void ShouldSavePrimitiveData()
+        {
+            // Given:
+            // - Primitive float data of 1.
+            const float expectedData = 1f;
+
+            // When:
+            // - Persisting data.
+            storage.SaveData(Path, expectedData);
+
+            // Then:
+            // - Data should be persisted properly.
+            var actualData = float.Parse(ReadString(Path));
+            Assert.AreEqual(expectedData, actualData);
+        }
+
+        [Test]
+        public void ShouldSaveStructData()
+        {
+            // Given:
+            // - Struct data.
+            var data = new TestStructData("hello there");
+
+            // When:
+            // - Persisting data.
+            storage.SaveData(Path, data);
+
+            // Then:
+            // - Data should be persisted properly.
+            var expectedData = SerializeObject(data);
+            var actualData = ReadString(Path);
+
+            Assert.AreEqual(expectedData, actualData);
+        }
+
+        [Test]
+        public void ShouldSaveObjectData()
+        {
+            // Given:
+            // - Data object.
+            var data = new TestObjectData("hello there");
+
+            // When:
+            // - Persisting data.
+            storage.SaveData(Path, data);
+
+            // Then:
+            // - Data should be persisted properly.
+            var expectedData = SerializeObject(data);
+            var actualData = ReadString(Path);
+
+            Assert.AreEqual(expectedData, actualData);
+        }
+
+        [Test]
+        public void ShouldSaveStreamObjectData()
+        {
+            // Given:
+            // - Object data.
+            var data = new TestObjectData("hello there");
+            var expectedData = SerializeObject(data);
+
+            // When:
+            // - Persisting data.
+            using var stream = new MemoryStream(
+                Encoding.UTF8.GetBytes(expectedData)
+            );
+
+            storage.SaveDataStream(Path, stream);
+
+            // Then:
+            // - Data should be persisted properly.
+            var actualData = ReadString(Path);
+
+            Assert.AreEqual(expectedData, actualData);
         }
 
         /// <returns>
@@ -150,26 +231,31 @@ namespace CHARK.GameManagement.Tests.Editor
         protected abstract IStorage CreateStorage();
 
         /// <returns>
-        /// Raw json value retrieved by given <paramref name="key"/>.
+        /// Raw json data retrieved by given <paramref name="path"/>.
         /// </returns>
-        protected abstract string GetString(string key);
+        protected abstract string ReadString(string path);
 
         /// <summary>
-        /// Set raw json value retrieved at given <paramref name="key"/>.
+        /// Set raw json data retrieved at given <paramref name="path"/>.
         /// </summary>
-        protected abstract void SetString(string key, string value);
+        protected abstract void SaveString(string path, string data);
 
         /// <summary>
-        /// Delete raw json stored at given <paramref name="key"/>.
+        /// Delete raw json stored at given <paramref name="path"/>.
         /// </summary>
-        protected abstract void DeleteString(string key);
+        protected abstract void DeleteString(string path);
 
-        /// <returns>
-        /// <code>json</code> string created from given <paramref name="obj"/>
-        /// </returns>
-        protected string SerializeObject<T>(T obj)
+        private static TObject DeserializeObject<TObject>(Stream stream)
         {
-            return JsonConvert.SerializeObject(obj, SerializerSettings);
+            using var reader = new StreamReader(stream, Encoding.UTF8);
+            var @object = reader.ReadToEnd();
+
+            return JsonConvert.DeserializeObject<TObject>(@object, SerializerSettings);
+        }
+
+        private static string SerializeObject<TObject>(TObject @object)
+        {
+            return JsonConvert.SerializeObject(@object, SerializerSettings);
         }
 
         private class TestObjectData

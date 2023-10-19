@@ -1,7 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
+using System.Threading;
 using System.Threading.Tasks;
+using CHARK.GameManagement.Assets;
 using CHARK.GameManagement.Messaging;
+using CHARK.GameManagement.Serialization;
+using CHARK.GameManagement.Storage;
 using CHARK.GameManagement.Systems;
 using Object = UnityEngine.Object;
 
@@ -9,11 +14,9 @@ namespace CHARK.GameManagement
 {
     public abstract partial class GameManager
     {
-        /// <returns>
-        /// Resources of type <see cref="TResource"/> from <see cref="resourceLoader"/> at
-        /// given <paramref name="path"/>.
-        /// </returns>
-        public static IEnumerable<TResource> GetResources<TResource>(string path = null) where TResource : Object
+        /// <inheritdoc cref="IResourceLoader.GetResources{TResource}"/>
+        public static IEnumerable<TResource> GetResources<TResource>(string path = null)
+            where TResource : Object
         {
             var gameManager = GetGameManager();
             var resourceLoader = gameManager.resourceLoader;
@@ -21,11 +24,9 @@ namespace CHARK.GameManagement
             return resourceLoader.GetResources<TResource>(path);
         }
 
-        /// <returns>
-        /// <c>true</c> if resource of type <see cref="TResource"/> is retrieved from
-        /// <see cref="resourceLoader"/> at given <paramref name="path"/> or <c>false</c> otherwise.
-        /// </returns>
-        public static bool TryGetResource<TResource>(string path, out TResource resource) where TResource : Object
+        /// <inheritdoc cref="IResourceLoader.TryGetResource{TResource}"/>
+        public static bool TryGetResource<TResource>(string path, out TResource resource)
+            where TResource : Object
         {
             var gameManager = GetGameManager();
             var resourceLoader = gameManager.resourceLoader;
@@ -33,115 +34,162 @@ namespace CHARK.GameManagement
             return resourceLoader.TryGetResource(path, out resource);
         }
 
-        /// <returns>
-        /// Task containing a resource of type <see cref="TResource"/> retrieved from
-        /// <see cref="resourceLoader"/>  at given <paramref name="path"/> or <c>default</c> if
-        /// value could not be retrieved.
-        /// </returns>
-        public static Task<TResource> GetResourceAsync<TResource>(string path)
+        /// <inheritdoc cref="IResourceLoader.ReadResourceAsync{TResource}"/>
+        public static Task<TResource> ReadResourceAsync<TResource>(
+            string path,
+            CancellationToken cancellationToken = default
+        )
         {
             var gameManager = GetGameManager();
             var resourceLoader = gameManager.resourceLoader;
 
-            return resourceLoader.GetResourceAsync<TResource>(path);
+            return resourceLoader.ReadResourceAsync<TResource>(path, cancellationToken);
         }
 
-        /// <returns>
-        /// Value retrieved from <see cref="runtimeStorage"/> at given <paramref name="path"/>
-        /// asynchronously or <c>default</c> if no value is could be retrieved.
-        /// </returns>
-        public static Task<TValue> GetRuntimeValueAsync<TValue>(string path)
+        /// <inheritdoc cref="IResourceLoader.ReadResourceStreamAsync"/>
+        public static Task<Stream> ReadResourceStreamAsync(
+            string path,
+            CancellationToken cancellationToken = default
+        )
+        {
+            var gameManager = GetGameManager();
+            var resourceLoader = gameManager.resourceLoader;
+
+            return resourceLoader.ReadResourceStreamAsync(path, cancellationToken);
+        }
+
+        /// <inheritdoc cref="IStorage.TryReadData{TData}"/>
+        public static bool TryReadData<TData>(string path, out TData data)
         {
             var gameManager = GetGameManager();
             var runtimeStorage = gameManager.runtimeStorage;
 
-            return runtimeStorage.GetValueAsync<TValue>(path);
+            return runtimeStorage.TryReadData(path, out data);
         }
 
-        /// <returns>
-        /// <c>true</c> if <paramref name="value"/> is retrieved by given <paramref name="path"/>
-        /// from <see cref="runtimeStorage"/>.
-        /// </returns>
-        public static bool TryGetRuntimeValue<TValue>(string path, out TValue value)
+        /// <inheritdoc cref="IStorage.ReadDataAsync{TData}"/>
+        public static Task<TData> ReadDataAsync<TData>(
+            string path,
+            CancellationToken cancellationToken = default
+        )
         {
             var gameManager = GetGameManager();
             var runtimeStorage = gameManager.runtimeStorage;
 
-            return runtimeStorage.TryGetValue(path, out value);
+            return runtimeStorage.ReadDataAsync<TData>(path, cancellationToken);
         }
 
-        /// <summary>
-        /// Persist a <paramref name="value"/> by given <paramref name="path"/> asynchronously to
-        /// <see cref="runtimeStorage"/>.
-        /// </summary>
-        public static Task SetRuntimeValueAsync<TValue>(string path, TValue value)
+        /// <inheritdoc cref="IStorage.ReadDataStream"/>
+        public static Stream ReadDataStream(string path)
         {
             var gameManager = GetGameManager();
             var runtimeStorage = gameManager.runtimeStorage;
 
-            return runtimeStorage.SetValueAsync(path, value);
+            return runtimeStorage.ReadDataStream(path);
         }
 
-        /// <summary>
-        /// Persist a <paramref name="value"/> by given <paramref name="path"/> to
-        /// <see cref="runtimeStorage"/>.
-        /// </summary>
-        public static void SetRuntimeValue<TValue>(string path, TValue value)
+        /// <inheritdoc cref="IStorage.ReadDataStreamAsync"/>
+        public static Task<Stream> ReadDataStreamAsync(
+            string path,
+            CancellationToken cancellationToken = default
+        )
         {
             var gameManager = GetGameManager();
             var runtimeStorage = gameManager.runtimeStorage;
 
-            runtimeStorage.SetValue(path, value);
+            return runtimeStorage.ReadDataStreamAsync(path, cancellationToken);
         }
 
-        /// <summary>
-        /// Delete persisted <see cref="runtimeStorage"/> value at given <paramref name="path"/>
-        /// asynchronously from <see cref="runtimeStorage"/>.
-        /// </summary>
-        public static Task DeleteRuntimeValueAsync(string path)
+        /// <inheritdoc cref="IStorage.SaveData{TData}"/>
+        public static void SaveData<TData>(string path, TData data)
         {
             var gameManager = GetGameManager();
             var runtimeStorage = gameManager.runtimeStorage;
 
-            return runtimeStorage.DeleteValueAsync(path);
+            runtimeStorage.SaveData(path, data);
         }
 
-        /// <summary>
-        /// Delete persisted <see cref="runtimeStorage"/> value at given <paramref name="path"/>
-        /// from <see cref="runtimeStorage"/>.
-        /// </summary>
-        public static void DeleteRuntimeValue(string path)
+        /// <inheritdoc cref="IStorage.SaveDataStream"/>
+        public static void SaveDataStream(string path, Stream stream)
         {
             var gameManager = GetGameManager();
             var runtimeStorage = gameManager.runtimeStorage;
 
-            runtimeStorage.DeleteValue(path);
+            runtimeStorage.SaveDataStream(path, stream);
         }
 
-        /// <returns>
-        /// <c>true</c> if <paramref name="value"/> is retrieved by given <paramref name="path"/>
-        /// from <see cref="EditorStorage"/>.
-        /// </returns>
-        public static bool TryGetEditorValue<TValue>(string path, out TValue value)
+        /// <inheritdoc cref="IStorage.SaveDataAsync{TData}"/>
+        public static Task SaveDataAsync<TData>(
+            string path,
+            TData data,
+            CancellationToken cancellationToken = default
+        )
         {
-            return EditorStorage.TryGetValue(path, out value);
+            var gameManager = GetGameManager();
+            var runtimeStorage = gameManager.runtimeStorage;
+
+            return runtimeStorage.SaveDataAsync(path, data, cancellationToken);
         }
 
-        /// <summary>
-        /// Persist a <paramref name="value"/> by given <paramref name="path"/> to
-        /// <see cref="EditorStorage"/>.
-        /// </summary>
-        public static void SetEditorValue<TValue>(string path, TValue value)
+        /// <inheritdoc cref="IStorage.SaveDataStreamAsync"/>
+        public static Task SaveDataStreamAsync(
+            string path,
+            Stream stream,
+            CancellationToken cancellationToken = default
+        )
         {
-            EditorStorage.SetValue(path, value);
+            var gameManager = GetGameManager();
+            var runtimeStorage = gameManager.runtimeStorage;
+
+            return runtimeStorage.SaveDataStreamAsync(path, stream, cancellationToken);
         }
 
-        /// <summary>
-        /// Delete persisted <see cref="EditorStorage"/> value at given <paramref name="path"/>.
-        /// </summary>
-        public static void DeleteEditorValue(string path)
+        /// <inheritdoc cref="IStorage.DeleteData"/>
+        public static void DeleteData(string path)
         {
-            EditorStorage.DeleteValue(path);
+            var gameManager = GetGameManager();
+            var runtimeStorage = gameManager.runtimeStorage;
+
+            runtimeStorage.DeleteData(path);
+        }
+
+        /// <inheritdoc cref="IStorage.DeleteDataAsync"/>
+        public static Task DeleteDataAsync(
+            string path,
+            CancellationToken cancellationToken = default
+        )
+        {
+            var gameManager = GetGameManager();
+            var runtimeStorage = gameManager.runtimeStorage;
+
+            return runtimeStorage.DeleteDataAsync(path, cancellationToken);
+        }
+
+        /// <inheritdoc cref="IStorage.TryReadData{TData}"/>
+        /// <remarks>
+        /// This method should only be used in Editor, it will not function in builds.
+        /// </remarks>
+        public static bool TryReadEditorData<TData>(string path, out TData data)
+        {
+            return EditorStorage.TryReadData(path, out data);
+        }
+
+        /// <inheritdoc cref="IStorage.SaveData{TData}"/>
+        /// <remarks>
+        /// This method should only be used in Editor, it will not function in builds.
+        /// </remarks>
+        public static void SaveEditorData<TData>(string path, TData data)
+        {
+            EditorStorage.SaveData(path, data);
+        }
+
+        /// <inheritdoc cref="IStorage.DeleteData"/>
+        /// <remarks>
+        /// This method should only be used in Editor, it will not function in builds.
+        /// </remarks>
+        public static void DeleteEditorData(string path)
+        {
+            EditorStorage.DeleteData(path);
         }
 
         /// <returns>
@@ -157,7 +205,8 @@ namespace CHARK.GameManagement
         }
 
         /// <returns>
-        /// Enumerable of systems of type <see cref="TSystem"/> from <see cref="entityManager"/>.
+        /// Enumerable of systems of type <see cref="TSystem"/> retrieved from
+        /// <see cref="entityManager"/>.
         /// </returns>
         public static IEnumerable<TSystem> GetSystems<TSystem>() where TSystem : ISystem
         {
@@ -169,8 +218,11 @@ namespace CHARK.GameManagement
         }
 
         /// <returns>
-        /// Systems of type <see cref="TSystem"/> from <see cref="entityManager"/>.
+        /// System of type <see cref="TSystem"/> retrieved from <see cref="entityManager"/>.
         /// </returns>
+        /// <exception cref="Exception">
+        /// if system of type <see cref="TSystem"/> is not found.
+        /// </exception>
         public static TSystem GetSystem<TSystem>() where TSystem : ISystem
         {
             var gameManager = GetGameManager();
@@ -179,9 +231,7 @@ namespace CHARK.GameManagement
             return entityManager.GetEntity<TSystem>();
         }
 
-        /// <summary>
-        /// Publish a message to the <see cref="messageBus"/>.
-        /// </summary>
+        /// <inheritdoc cref="IMessageBus.Publish{TMessage}"/>
         public static void Publish<TMessage>(TMessage message) where TMessage : IMessage
         {
             var gameManager = GetGameManager();
@@ -190,9 +240,7 @@ namespace CHARK.GameManagement
             messageBus.Publish(message);
         }
 
-        /// <summary>
-        /// Add a listener to the <see cref="messageBus"/>.
-        /// </summary>
+        /// <inheritdoc cref="IMessageBus.AddListener{TMessage}"/>
         public static void AddListener<TMessage>(Action<TMessage> listener)
             where TMessage : IMessage
         {
@@ -202,9 +250,7 @@ namespace CHARK.GameManagement
             messageBus.AddListener(listener);
         }
 
-        /// <summary>
-        /// Remove a listener from the <see cref="messageBus"/>.
-        /// </summary>
+        /// <inheritdoc cref="IMessageBus.RemoveListener{TMessage}"/>
         public static void RemoveListener<TMessage>(Action<TMessage> listener)
             where TMessage : IMessage
         {
@@ -214,30 +260,22 @@ namespace CHARK.GameManagement
             messageBus.RemoveListener(listener);
         }
 
-        /// <returns>
-        /// <c>true</c> if <paramref name="serializedValue"/> is deserialized to
-        /// <paramref name="deserializedValue"/> using <see cref="serializer"/> successfully or
-        /// <c>false</c> otherwise.
-        /// </returns>
-        public static bool TryDeserializeValue<TValue>(string serializedValue, out TValue deserializedValue)
+        /// <inheritdoc cref="ISerializer.TryDeserializeValue{TValue}"/>
+        public static bool TryDeserializeValue<TValue>(string value, out TValue deserializedValue)
         {
             var gameManager = GetGameManager();
             var serializer = gameManager.serializer;
 
-            return serializer.TryDeserializeValue(serializedValue, out deserializedValue);
+            return serializer.TryDeserializeValue(value, out deserializedValue);
         }
 
-        /// <returns>
-        /// <c>true</c> if <paramref name="deserializedValue"/> is serialized to
-        /// <paramref name="serializedValue"/> using <see cref="serializer"/> successfully or
-        /// <c>false</c> otherwise.
-        /// </returns>
-        public static bool TrySerializeValue<TValue>(TValue deserializedValue, out string serializedValue)
+        /// <inheritdoc cref="ISerializer.TrySerializeValue{TValue}"/>
+        public static bool TrySerializeValue<TValue>(TValue value, out string serializedValue)
         {
             var gameManager = GetGameManager();
             var serializer = gameManager.serializer;
 
-            return serializer.TrySerializeValue(deserializedValue, out serializedValue);
+            return serializer.TrySerializeValue(value, out serializedValue);
         }
     }
 }

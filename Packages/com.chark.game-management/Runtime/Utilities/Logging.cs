@@ -74,5 +74,15 @@ namespace CHARK.GameManagement.Utilities
             Debug.LogError($"[{name}]: {message}", owner);
 #endif
         }
+
+        internal static void LogException(Exception exception, Type owner)
+        {
+            Debug.LogException(exception);
+        }
+
+        internal static void LogException(Exception exception, Object owner)
+        {
+            Debug.LogException(exception, owner);
+        }
     }
 }

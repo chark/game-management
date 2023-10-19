@@ -1,4 +1,6 @@
-﻿using CHARK.GameManagement.Serialization;
+﻿using System.IO;
+using System.Text;
+using CHARK.GameManagement.Serialization;
 using UnityEngine;
 
 namespace CHARK.GameManagement.Storage
@@ -12,13 +14,29 @@ namespace CHARK.GameManagement.Storage
         {
         }
 
-        protected override string GetString(string path)
+        protected override Stream ReadStream(string path)
         {
-            return PlayerPrefs.GetString(path);
+            var prefsString = PlayerPrefs.GetString(path);
+            if (string.IsNullOrWhiteSpace(prefsString))
+            {
+                return Stream.Null;
+            }
+
+            var prefsBytes = Encoding.UTF8.GetBytes(prefsString);
+
+            return new MemoryStream(prefsBytes);
         }
 
-        protected override void SetString(string path, string value)
+        protected override void SaveString(string path, string value)
         {
+            PlayerPrefs.SetString(path, value);
+        }
+
+        protected override void SaveStream(string path, Stream stream)
+        {
+            using var streamReader = new StreamReader(stream);
+            var value = streamReader.ReadToEnd();
+
             PlayerPrefs.SetString(path, value);
         }
 

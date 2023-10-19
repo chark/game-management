@@ -6,13 +6,13 @@ namespace CHARK.GameManagement.Samples.Counters
     {
         public long LoadFixedUpdateCount()
         {
-            var key = GetStorageKey(nameof(CounterSystem.FixedUpdateCount));
+            var path = GetPath(nameof(CounterSystem.FixedUpdateCount));
 
             // Game Manager provides an abstraction for retrieving values. It also supports json
             // serialization by default.
-            if (GameManager.TryGetRuntimeValue<long>(key, out var value))
+            if (GameManager.TryReadData<long>(path, out var data))
             {
-                return value;
+                return data;
             }
 
             return 0;
@@ -20,10 +20,10 @@ namespace CHARK.GameManagement.Samples.Counters
 
         public long LoadUpdateCount()
         {
-            var key = GetStorageKey(nameof(CounterSystem.UpdateCount));
-            if (GameManager.TryGetRuntimeValue<long>(key, out var value))
+            var path = GetPath(nameof(CounterSystem.UpdateCount));
+            if (GameManager.TryReadData<long>(path, out var data))
             {
-                return value;
+                return data;
             }
 
             return 0;
@@ -31,17 +31,17 @@ namespace CHARK.GameManagement.Samples.Counters
 
         public void SaveFixedUpdateCount(long count)
         {
-            var key = GetStorageKey(nameof(CounterSystem.FixedUpdateCount));
-            GameManager.SetRuntimeValue(key, count);
+            var path = GetPath(nameof(CounterSystem.FixedUpdateCount));
+            GameManager.SaveData(path, count);
         }
 
         public void SaveUpdateCount(long count)
         {
-            var key = GetStorageKey(nameof(CounterSystem.UpdateCount));
-            GameManager.SetRuntimeValue(key, count);
+            var path = GetPath(nameof(CounterSystem.UpdateCount));
+            GameManager.SaveData(path, count);
         }
 
-        private static string GetStorageKey(string suffix)
+        private static string GetPath(string suffix)
         {
             return $"{nameof(StorageSystem)}_${suffix}";
         }

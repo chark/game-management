@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using UnityEngine;
+using CHARK.GameManagement.Utilities;
 
 namespace CHARK.GameManagement.Messaging
 {
@@ -22,7 +22,7 @@ namespace CHARK.GameManagement.Messaging
                 }
                 catch (Exception exception)
                 {
-                    Debug.LogException(exception);
+                    Logging.LogException(exception, GetType());
                 }
             }
         }

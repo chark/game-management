@@ -4,6 +4,7 @@ using UnityEditor;
 
 namespace CHARK.GameManagement.Tests.Editor
 {
+    // ReSharper disable once UnusedType.Global
     internal sealed class EditorPrefsStorageTest : StorageTest
     {
         protected override IStorage CreateStorage()
@@ -11,19 +12,19 @@ namespace CHARK.GameManagement.Tests.Editor
             return new EditorPrefsStorage(DefaultSerializer.Instance);
         }
 
-        protected override string GetString(string key)
+        protected override string ReadString(string path)
         {
-            return EditorPrefs.GetString(key);
+            return EditorPrefs.GetString(path);
         }
 
-        protected override void SetString(string key, string value)
+        protected override void SaveString(string path, string data)
         {
-            EditorPrefs.SetString(key, value);
+            EditorPrefs.SetString(path, data);
         }
 
-        protected override void DeleteString(string key)
+        protected override void DeleteString(string path)
         {
-            EditorPrefs.DeleteKey(key);
+            EditorPrefs.DeleteKey(path);
         }
     }
 }
