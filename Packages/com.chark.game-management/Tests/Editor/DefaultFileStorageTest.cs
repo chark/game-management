@@ -6,11 +6,11 @@ using UnityEngine;
 namespace CHARK.GameManagement.Tests.Editor
 {
     // ReSharper disable once UnusedType.Global
-    internal sealed class FileStorageTest : StorageTest
+    internal sealed class DefaultFileStorageTest : StorageTest
     {
         protected override IStorage CreateStorage()
         {
-            return new FileStorage(
+            return new DefaultFileStorage(
                 serializer: DefaultSerializer.Instance,
                 profile: GameManagerTestProfile.Instance,
                 persistentDataPath: Application.persistentDataPath,

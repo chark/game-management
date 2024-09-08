@@ -5,12 +5,12 @@ using CHARK.GameManagement.Utilities;
 
 namespace CHARK.GameManagement.Storage
 {
-    internal sealed class FileStorage : Storage
+    internal sealed class DefaultFileStorage : Storage
     {
         private readonly string persistentDataPath;
         private readonly IGameManagerSettingsProfile profile;
 
-        public FileStorage(
+        public DefaultFileStorage(
             ISerializer serializer,
             IGameManagerSettingsProfile profile,
             string persistentDataPath,

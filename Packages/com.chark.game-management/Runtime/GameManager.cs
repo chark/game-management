@@ -159,7 +159,7 @@ namespace CHARK.GameManagement
         /// </returns>
         protected virtual IStorage CreateRuntimeStorage()
         {
-            return new FileStorage(
+            return new DefaultFileStorage(
                 serializer: serializer,
                 profile: Settings.ActiveProfile,
                 persistentDataPath: Application.persistentDataPath,
@@ -172,7 +172,7 @@ namespace CHARK.GameManagement
         /// </returns>
         protected virtual IResourceLoader CreateResourceLoader()
         {
-            return new ResourceLoader(serializer);
+            return new DefaultResourceLoader(serializer);
         }
 
         /// <returns>
@@ -181,7 +181,7 @@ namespace CHARK.GameManagement
         protected virtual IEntityManager CreateEntityManager()
         {
             var profile = Settings.ActiveProfile;
-            return new EntityManager(profile);
+            return new DefaultEntityManager(profile);
         }
 
         /// <returns>
@@ -189,7 +189,7 @@ namespace CHARK.GameManagement
         /// </returns>
         protected virtual IMessageBus CreateMessageBus()
         {
-            return new MessageBus();
+            return new DefaultMessageBus();
         }
 
         private void InitializeGameManager()

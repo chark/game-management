@@ -241,8 +241,7 @@ namespace CHARK.GameManagement
         }
 
         /// <inheritdoc cref="IMessageBus.AddListener{TMessage}"/>
-        public static void AddListener<TMessage>(Action<TMessage> listener)
-            where TMessage : IMessage
+        public static void AddListener<TMessage>(OnMessageReceived<TMessage> listener) where TMessage : IMessage
         {
             var gameManager = GetGameManager();
             var messageBus = gameManager.messageBus;
@@ -251,8 +250,7 @@ namespace CHARK.GameManagement
         }
 
         /// <inheritdoc cref="IMessageBus.RemoveListener{TMessage}"/>
-        public static void RemoveListener<TMessage>(Action<TMessage> listener)
-            where TMessage : IMessage
+        public static void RemoveListener<TMessage>(OnMessageReceived<TMessage> listener) where TMessage : IMessage
         {
             var gameManager = GetGameManager();
             var messageBus = gameManager.messageBus;

@@ -5,14 +5,14 @@ using CHARK.GameManagement.Utilities;
 
 namespace CHARK.GameManagement.Entities
 {
-    internal sealed class EntityManager : IEntityManager
+    internal sealed class DefaultEntityManager : IEntityManager
     {
         private readonly List<object> entities = new();
         private readonly IGameManagerSettingsProfile profile;
 
         public IReadOnlyList<object> Entities => entities;
 
-        public EntityManager(IGameManagerSettingsProfile profile)
+        public DefaultEntityManager(IGameManagerSettingsProfile profile)
         {
             this.profile = profile;
         }

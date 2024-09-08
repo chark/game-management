@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace CHARK.GameManagement.Messaging
+﻿namespace CHARK.GameManagement.Messaging
 {
     /// <summary>
     /// Core application event messaging system.
@@ -17,11 +15,11 @@ namespace CHARK.GameManagement.Messaging
         /// Add a new <paramref name="listener"/> which listens for incoming messages of type
         /// <see cref="TMessage"/>.
         /// </summary>
-        public void AddListener<TMessage>(Action<TMessage> listener) where TMessage : IMessage;
+        public void AddListener<TMessage>(OnMessageReceived<TMessage> listener) where TMessage : IMessage;
 
         /// <summary>
         /// Remove existing <paramref name="listener"/> of type <see cref="TMessage"/>.
         /// </summary>
-        public void RemoveListener<TMessage>(Action<TMessage> listener) where TMessage : IMessage;
+        public void RemoveListener<TMessage>(OnMessageReceived<TMessage> listener) where TMessage : IMessage;
     }
 }

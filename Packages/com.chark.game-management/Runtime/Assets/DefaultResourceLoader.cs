@@ -10,11 +10,11 @@ using Object = UnityEngine.Object;
 
 namespace CHARK.GameManagement.Assets
 {
-    internal sealed class ResourceLoader : IResourceLoader
+    internal sealed class DefaultResourceLoader : IResourceLoader
     {
         private readonly ISerializer serializer;
 
-        public ResourceLoader(ISerializer serializer)
+        public DefaultResourceLoader(ISerializer serializer)
         {
             this.serializer = serializer;
         }

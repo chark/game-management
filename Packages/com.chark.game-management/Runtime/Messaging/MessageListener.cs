@@ -4,21 +4,24 @@ using CHARK.GameManagement.Utilities;
 
 namespace CHARK.GameManagement.Messaging
 {
-    internal sealed class MessageListener<TMessage> : MessageListener where TMessage : IMessage
+    internal sealed class MessageListener
     {
-        private readonly IList<Action<TMessage>> listeners = new List<Action<TMessage>>();
+        private readonly IDictionary<object, Action<IMessage>> wrapperListenersByInstance =
+            new Dictionary<object, Action<IMessage>>();
 
-        public int ListenerCount => listeners.Count;
+        private readonly IList<Action<IMessage>> wrapperListeners =
+            new List<Action<IMessage>>();
 
-        public void Raise(TMessage message)
+        public int ListenerCount => wrapperListeners.Count;
+
+        public void Raise(IMessage message)
         {
-            // ReSharper disable once ForCanBeConvertedToForeach
-            for (var index = 0; index < listeners.Count; index++)
+            for (var index = wrapperListeners.Count - 1; index >= 0; index--)
             {
-                var listener = listeners[index];
+                var wrapperListener = wrapperListeners[index];
                 try
                 {
-                    listener.Invoke(message);
+                    wrapperListener.Invoke(message);
                 }
                 catch (Exception exception)
                 {
@@ -27,18 +30,31 @@ namespace CHARK.GameManagement.Messaging
             }
         }
 
-        public void AddListener(Action<TMessage> listener)
+        public void AddListener<TMessage>(OnMessageReceived<TMessage> listener) where TMessage : IMessage
         {
-            listeners.Add(listener);
+            if (wrapperListenersByInstance.TryGetValue(listener, out var wrapperListener))
+            {
+                wrapperListeners.Add(wrapperListener);
+                return;
+            }
+
+            var newWrapperListener = new Action<IMessage>(
+                message => { listener.Invoke((TMessage)message); }
+            );
+
+            wrapperListenersByInstance[listener] = newWrapperListener;
+            wrapperListeners.Add(newWrapperListener);
         }
 
-        public void RemoveListener(Action<TMessage> listener)
+        public void RemoveListener<TMessage>(OnMessageReceived<TMessage> listener) where TMessage : IMessage
         {
-            listeners.Remove(listener);
-        }
-    }
+            if (wrapperListenersByInstance.TryGetValue(listener, out var wrapperListener) == false)
+            {
+                return;
+            }
 
-    internal abstract class MessageListener
-    {
+            wrapperListenersByInstance.Remove(wrapperListener);
+            wrapperListeners.Remove(wrapperListener);
+        }
     }
 }
