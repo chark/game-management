@@ -8,12 +8,13 @@ namespace CHARK.GameManagement.Settings
     internal sealed class GameManagerSettings : ScriptableObject
     {
         [Tooltip(
-            "List of available settings profiles, the first active profile will be picked during " +
-            "Game Manager initialization"
+            "List of available settings profiles, the first active profile will be picked during "
+            + "Game Manager initialization"
         )]
         [SerializeField]
         private List<GameManagerSettingsProfile> profiles = new();
 
+        private IGameManagerSettingsProfile profileOverride;
         private static GameManagerSettings currentSettings;
 
         /// <summary>
@@ -31,7 +32,11 @@ namespace CHARK.GameManagement.Settings
         /// <summary>
         /// Currently active settings instance. Never <c>null</c>.
         /// </summary>
-        internal IGameManagerSettingsProfile ActiveProfile => GetActiveProfile();
+        internal IGameManagerSettingsProfile ActiveProfile
+        {
+            get => GetActiveProfile();
+            set => profileOverride = value;
+        }
 
         /// <summary>
         /// Add a set of new profiles to the <see cref="profiles"/> list. Duplicated profiles will
@@ -90,6 +95,11 @@ namespace CHARK.GameManagement.Settings
 
         private IGameManagerSettingsProfile GetActiveProfile()
         {
+            if (profileOverride != default)
+            {
+                return profileOverride;
+            }
+
             if (profiles.Count == 0)
             {
                 return DefaultGameManagerSettingsProfile.Instance;

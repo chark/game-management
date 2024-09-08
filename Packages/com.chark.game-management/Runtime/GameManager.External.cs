@@ -8,12 +8,62 @@ using CHARK.GameManagement.Messaging;
 using CHARK.GameManagement.Serialization;
 using CHARK.GameManagement.Storage;
 using CHARK.GameManagement.Systems;
+using UnityEngine;
 using Object = UnityEngine.Object;
 
 namespace CHARK.GameManagement
 {
     public abstract partial class GameManager
     {
+        /// <summary>
+        /// <c>true</c> if debug mode is enabled or <c>false</c> otherwise. When this value changes, a
+        /// <see cref="DebuggingChangedMessage"/> is raised.
+        /// </summary>
+        public static bool IsDebuggingEnabled
+        {
+            get
+            {
+#if UNITY_EDITOR
+                if (Application.isPlaying)
+                {
+                    return isDebuggingEnabled;
+                }
+
+                if (TryReadEditorData<bool>(IsDebuggingEnabledKey, out var value))
+                {
+                    return value;
+                }
+#endif
+                return isDebuggingEnabled;
+            }
+            set
+            {
+                var oldValue = IsDebuggingEnabled;
+                var newValue = value;
+
+#if UNITY_EDITOR
+                SaveEditorData(IsDebuggingEnabledKey, newValue);
+#endif
+
+                isDebuggingEnabled = newValue;
+
+#if UNITY_EDITOR
+                if (Application.isPlaying == false)
+                {
+                    return;
+                }
+#endif
+
+                if (oldValue == newValue)
+                {
+                    return;
+                }
+
+                var message = new DebuggingChangedMessage(oldValue, newValue);
+                Publish(message);
+            }
+        }
+
         /// <inheritdoc cref="IResourceLoader.GetResources{TResource}"/>
         public static IEnumerable<TResource> GetResources<TResource>(string path = null)
             where TResource : Object

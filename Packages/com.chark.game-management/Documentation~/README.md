@@ -196,6 +196,13 @@ GameManager.SetEditorValue("some-key", value);
 
 // Delete an Editor value synchronously
 GameManager.DeleteEditorValue("some-key");
+
+// Change debugging mode state
+GameManager.IsDebuggingEnabled = true;
+GameManager.IsDebuggingEnabled = false;
+
+// Check for debug mode state changes and react accordingly
+GameManager.AddListener<DebuggingChangedMessage>(message => { });
 ```
 
 ### Systems

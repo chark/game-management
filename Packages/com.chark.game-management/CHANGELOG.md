@@ -14,6 +14,7 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - `GameManager.ReadResourceAsync` and `GameManager.ReadResourceStreamAsync` methods which can be used to retrieve resources from StreamingAssets directory.
 - `GameManager.ReadDataStream` and `GameManager.ReadDataStreamAsync` methods which can be used to read a `Stream` from a file on disk.
 - `GameManager.SaveDataStream` and `GameManager.SaveDataStreamAsync` methods which can be used to persist a `Stream` to disk.
+- `GameManager.IsDebuggingEnabled` flag which can be used to turn on if debug mode is on for the game manager.
 
 ### Changed
 

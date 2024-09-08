@@ -26,6 +26,9 @@ namespace CHARK.GameManagement
 
         private static GameManagerSettings Settings => GameManagerSettings.Instance;
 
+        private const string IsDebuggingEnabledKey = nameof(GameManager) + "." + nameof(IsDebuggingEnabled);
+        private static bool isDebuggingEnabled;
+
         private bool isSystemsInitialized;
 
         private ISerializer serializer;
@@ -43,6 +46,15 @@ namespace CHARK.GameManagement
                 Destroy(gameObject);
                 return;
             }
+
+#if UNITY_EDITOR
+            if (TryReadEditorData(IsDebuggingEnabledKey, out bool value))
+            {
+                isDebuggingEnabled = value;
+            }
+#else
+            isDebuggingEnabled = Debug.isDebugBuild;
+#endif
 
             var isInitialized = currentGameManager == true;
 
