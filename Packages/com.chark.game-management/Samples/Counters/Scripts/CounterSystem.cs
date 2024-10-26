@@ -1,13 +1,11 @@
-﻿using CHARK.GameManagement.Systems;
+﻿using CHARK.GameManagement.Actors;
 
 namespace CHARK.GameManagement.Samples.Counters
 {
     internal sealed class CounterSystem :
         // You can also inherit MonoSystem to get [SerializeField] functionality.
         SimpleSystem,
-        ICounterSystem,
-        IFixedUpdateListener,
-        IUpdateListener
+        ICounterSystem
     {
         private readonly long countThreshold;
         private IStorageSystem storageSystem;
@@ -23,19 +21,19 @@ namespace CHARK.GameManagement.Samples.Counters
             this.countThreshold = countThreshold;
         }
 
-        public override void OnInitialized()
+        protected override void OnInitialized()
         {
             // Systems can interact with other systems as well.
-            storageSystem = GameManager.GetSystem<IStorageSystem>();
+            storageSystem = GameManager.GetActor<IStorageSystem>();
             RestoreState();
         }
 
-        public override void OnDisposed()
+        protected override void OnDisposed()
         {
             SaveState();
         }
 
-        public void OnFixedUpdated(float deltaTime)
+        protected override void OnUpdatedPhysics(IUpdateContext context)
         {
             if (IsTrackCounts == false)
             {
@@ -55,7 +53,7 @@ namespace CHARK.GameManagement.Samples.Counters
             GameManager.Publish(message);
         }
 
-        public void OnUpdated(float deltaTime)
+        protected override void OnUpdatedFrame(IUpdateContext context)
         {
             if (IsTrackCounts == false)
             {

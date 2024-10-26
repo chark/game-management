@@ -1,4 +1,4 @@
-﻿using CHARK.GameManagement.Systems;
+﻿using CHARK.GameManagement.Actors;
 
 namespace CHARK.GameManagement.Samples.Counters
 {

@@ -9,14 +9,15 @@ Essential, minimalistic and code-first Game Management tools. Perfect for game-j
 ```csharp
 internal class MyGameManager : GameManager
 {
-    protected override void OnBeforeInitializeSystems()
+    protected override void OnInitializeActorsEntered()
     {
-        AddSystem(new MySystem());
+        AddActor(new MySystem());
+        AddActor(new Player());
     }
 
-    protected override void OnAfterInitializeSystems()
+    protected override void OnInitializeActorsExited()
     {
-        var mySystem = GetSystem<MySystem>();
+        var mySystem = GetActor<MySystem>();
         mySystem.DoSomething();
     }
 }
@@ -26,7 +27,7 @@ internal class MyGameManager : GameManager
 
 ## Features
 
-- Service Locator
+- Service/actor Locator
 - Code-first
 - Message Bus
 - Data storage with json support

@@ -1,4 +1,5 @@
-﻿using CHARK.GameManagement.Messaging;
+﻿using CHARK.GameManagement.Actors;
+using CHARK.GameManagement.Messaging;
 
 namespace CHARK.GameManagement
 {
@@ -21,6 +22,32 @@ namespace CHARK.GameManagement
         {
             IsDebuggingEnabledPrev = isDebuggingEnabledPrev;
             IsDebuggingEnabled = isDebuggingEnabledNew;
+        }
+    }
+
+    public readonly struct ActorAddedMessage : IMessage
+    {
+        /// <summary>
+        /// Actor that was added to the game manager.
+        /// </summary>
+        public IActor Actor { get; }
+
+        public ActorAddedMessage(IActor actor)
+        {
+            Actor = actor;
+        }
+    }
+
+    public readonly struct ActorRemovedMessage : IMessage
+    {
+        /// <summary>
+        /// Actor that was removed from the game manager.
+        /// </summary>
+        public IActor Actor { get; }
+
+        public ActorRemovedMessage(IActor actor)
+        {
+            Actor = actor;
         }
     }
 }

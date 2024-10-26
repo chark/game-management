@@ -2,17 +2,17 @@
 {
     internal sealed class CountersGameManager : GameManager
     {
-        protected override void OnBeforeInitializeSystems()
+        protected override void OnInitializeActorsEntered()
         {
             // Systems are added to the game manager before it enters system init process.
-            AddSystem(new CounterSystem(countThreshold: 100));
-            AddSystem(new StorageSystem());
+            AddActor(new CounterSystem(countThreshold: 100));
+            AddActor(new StorageSystem());
         }
 
-        protected override void OnAfterInitializeSystems()
+        protected override void OnInitializeActorsExited()
         {
             // After systems are initialized, they can be interacted with freely in this method.
-            var counterSystem = GetSystem<ICounterSystem>();
+            var counterSystem = GetActor<ICounterSystem>();
             counterSystem.IsTrackCounts = true;
         }
 

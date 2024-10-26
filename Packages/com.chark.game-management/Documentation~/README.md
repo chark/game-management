@@ -12,8 +12,10 @@
 [Default Game Manager Prefab]: ../Samples%7E/Defaults/Prefabs/DefaultGameManager.prefab
 [Default Game Manager Settings Profile]: ../Samples%7E/Defaults/Resources/DefaultGameManagerSettingsProfile.asset
 
-[SimpleSystem]: ../Runtime/Systems/SimpleSystem.cs
-[MonoSystem]: ../Runtime/Systems/MonoSystem.cs
+[SimpleActor]: ../Runtime/Actors/SimpleActor.cs
+[MonoActor]: ../Runtime/Actors/MonoActor.cs
+[SimpleSystem]: ../Runtime/Actors/SimpleSystem.cs
+[MonoSystem]: ../Runtime/Actors/MonoSystem.cs
 [IMessage]: ../Runtime/Messaging/IMessage.cs
 
 [IFixedUpdateListener]: ../Runtime/Systems/IFixedUpdateListener.cs
@@ -80,26 +82,31 @@ The starting point when using this package should be a class that inherits [Game
 ```csharp
 using CHARK.GameManagement;
 using CHARK.GameManagement.Assets;
-using CHARK.GameManagement.Entities;
+using CHARK.GameManagement.Actors;
 using CHARK.GameManagement.Messaging;
 using CHARK.GameManagement.Storage;
 
 internal sealed class MyGameManager : GameManager
 {
-    protected override void OnBeforeInitializeSystems()
+    protected override void OnInitializeActorsEntered()
     {
-        // Initialize systems here
-        // AddSystem(...);
+        // Initialize actors here
+        // AddActor(...);
     }
 
-    protected override void OnAfterInitializeSystems()
+    protected override void OnInitializeActorsExited()
     {
-        // Do stuff with systems here after they're initialized and handle general game init logic
+        // Do stuff with actors here after they're initialized and handle general game init logic
     }
 
-    protected override void OnBeforeDestroy()
+    protected override void OnDestroyEntered()
     {
-        // Cleanup your game
+        // Cleanup before game manager destroy
+    }
+  
+    protected override void OnDestroyExited()
+    {
+        // Cleanup after game manager destroy
     }
 
     protected override string GetGameManagerName()
@@ -117,9 +124,9 @@ internal sealed class MyGameManager : GameManager
         // Provide a custom resource loading implementation
     }
 
-    protected override IEntityManager CreateEntityManager()
+    protected override IActorManager CreateActorManager()
     {
-        // Provide a custom entity storage implementation (used for service locator)
+        // Provide a custom actor storage implementation
     }
 
     protected override IMessageBus CreateMessageBus()
@@ -132,25 +139,14 @@ internal sealed class MyGameManager : GameManager
 Some things to keep in mind:
 
 - All of the `override` methods are optional.
-- It is safe to retrieve systems in `OnAfterInitializeSystems` method.
-- `OnInitialized` method of each system is called in the order you add them.
+- It is safe to retrieve actors in `OnInitializeActorsExited` method.
+- `OnInitialized` method of each actor is called in the order the actor was registered.
 
 ### Game Manager Static Methods
 
 To communicate with the currently active management backend in your regular components and gameplay code, use static methods exposed on [Game Manager] class:
 
 ```csharp
-// Retrieve a set of systems
-var systems = GameManager.GetSystems<IMySystem>();
-
-// Retrieve system or throw an exception if its missing
-var system = GameManager.GetSystem<IMySystem>();
-
-// Retrieve a system
-if (GameManager.TryGetSystem<IMySystem>(out var system))
-{
-}
-
 // Subscribe to messages
 GameManager.AddListener<MyMessage>(message => { });
 
@@ -159,6 +155,33 @@ GameManager.RemoveListener<MyMessage>(message => { });
 
 // Publish a message
 GameManager.Publish(new MyMessage());
+
+// Retrieve a set of actors
+var systems = GameManager.GetActors<IMyActor>();
+
+// Retrieve actor or throw an exception if its missing
+var system = GameManager.GetActor<IMyActor>();
+
+// Retrieve a actor
+if (GameManager.TryGetActor<IMyActor>(out var actor))
+{
+}
+
+// Register an actor
+if (GameManager.AddActor(actor))
+{
+  // Actor registered
+}
+
+// Unregister an actor
+if (GameManager.RemoveActor(actor))
+{
+  // Actor removed
+}
+
+// Listen for added/removed actors
+GameManager.AddListener<ActorAddedMessage>(message => { });
+GameManager.AddListener<ActorRemovedMessage>(message => { });
 
 // Load a set of resources
 var resources = GameManager.LoadResources<MyResource>();
@@ -205,60 +228,132 @@ GameManager.IsDebuggingEnabled = false;
 GameManager.AddListener<DebuggingChangedMessage>(message => { });
 ```
 
-### Systems
+### Actors/Systems
 
-When creating custom systems you have two options to inherit from:
+Actors are your "root" components, which hide a set of regular Unity components. The idea behind actors is to provide a clean interface for them to interact with other actors and the game world. Essentially, if anything is interactable, it should be an actor. Additionally, it is recommended to interact with the `GameManager` in actors exclusively if you want to keep things tidy.
 
-- [SimpleSystem] - a system which is a plain old C# class.
-- [MonoSystem] - system which inherits a [MonoBehaviour](https://docs.unity3d.com/ScriptReference/MonoBehaviour.html) and will enable you to use [SerializeField](https://docs.unity3d.com/ScriptReference/SerializeField.html) and other Unity serialization goodies. The caveat is that it's harder to inject such systems into your [Game Manager].
+Systems are essentially the same as actors and are only separated for now to make it easier to differentiate from regular actors. Essentially, systems are actors which act as back-end game systems (e.g., database, music).
 
-Here are some examples:
+When creating custom actors or systems, you can inherit from the following classes:
+
+- [SimpleActor] - actor which is a plain old C# class.
+- [MonoActor] - actor which inherits a [MonoBehaviour](https://docs.unity3d.com/ScriptReference/MonoBehaviour.html) which will enable you to use [SerializeField](https://docs.unity3d.com/ScriptReference/SerializeField.html) and other Unity serialization goodies.
+- [SimpleSystem] - system which inherits [SimpleActor].
+- [MonoSystem] - system which inherits [MonoActor].
+
+Here are some examples of gameplay actors:
 
 ```csharp
-internal sealed class MyMonoSystem : MonoSystem
+// It is recommended to create interfaces for all of your actors to better define the API
+interface IPlayerActor : IActor
+{
+}
+
+// Mono* classes will add to GameManager automatically
+internal sealed class MonoPlayerActor : MonoActor, IPlayerActor
 {
     [SerializeField]
-    private string foo;
+    private int hp = 100;
 
-    public override void OnInitialized()
+    protected override void OnInitialized()
     {
     }
 
-    public override void OnDisposed()
+    protected override void OnDisposed()
+    {
+    }
+
+    protected override void OnUpdatedPhysics(IUpdateContext context)
+    {
+    }
+
+    protected override void OnUpdatedFrame(IUpdateContext context)
     {
     }
 }
 
-internal sealed class MySimpleSystem : SimpleSystem
+// You'll need to add this to the GameManager manually via GameManager.AddActor(new SimplePlayerActor(123))
+internal sealed class SimplePlayerActor : SimpleActor, IPlayerActor
 {
-    public override void OnInitialized()
+    private readonly int hp;
+
+    public SimplePlayerActor(int hp)
+    {
+        this.hp = hp;
+    }
+
+    protected override void OnInitialized()
     {
     }
 
-    public override void OnDisposed()
+    protected override void OnDisposed()
+    {
+    }
+
+    protected override void OnUpdatedPhysics(IUpdateContext context)
+    {
+    }
+  
+    protected override void OnUpdatedFrame(IUpdateContext context)
     {
     }
 }
 ```
 
-If you'd like you systems to receive `Update` or `FixedUpdate` callbacks, inherit [IFixedUpdateListener] or [IUpdateListener]:
+And here are some examples of system actors:
 
 ```csharp
-internal sealed class MySimpleSystem : SimpleSystem, IFixedUpdateListener, IUpdateListener
+// It is recommended to create interfaces for systems as well
+interface IDataSystem : IActor
 {
-    public override void OnInitialized()
+}
+
+// Mono* classes will add to GameManager automatically
+internal sealed class MonoDataSystem : MonoSystem, IDataSystem
+{
+    [SerializeField]
+    private string dbUrl = "sqlite.something";
+
+    protected override void OnInitialized()
     {
     }
 
-    public override void OnDisposed()
+    protected override void OnDisposed()
     {
     }
 
-    public void OnFixedUpdated(float deltaTime)
+    protected override void OnUpdatedPhysics(IUpdateContext context)
+    {
+    }
+  
+    protected override void OnUpdatedFrame(IUpdateContext context)
+    {
+    }
+}
+
+// You'll need to add this to the GameManager manually via GameManager.AddActor(new SimpleDataSystem("..."))
+internal sealed class SimpleDataSystem : SimpleSystem, IDataSystem
+{
+    private readonly string dbUrl;
+
+    public SimpleDataSystem(int dbUrl)
+    {
+        this.dbUrl = dbUrl;
+    }
+
+    protected override void OnInitialized()
     {
     }
 
-    public void OnUpdated(float deltaTime)
+    protected override void OnDisposed()
+    {
+    }
+  
+    protected override void OnUpdatedPhysics(IUpdateContext context)
+    {
+    }
+  
+    protected override void OnUpdatedFrame(IUpdateContext context)
     {
     }
 }
@@ -274,7 +369,7 @@ internal readonly struct MyMessage : IMessage
 }
 ```
 
-Afterward you can fire away your messages like so:
+Afterward, you can fire away your messages like so:
 
 ```csharp
 GameManager.Publish(new MyMessage());

@@ -3,11 +3,11 @@ using System.Collections.Generic;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
+using CHARK.GameManagement.Actors;
 using CHARK.GameManagement.Assets;
 using CHARK.GameManagement.Messaging;
 using CHARK.GameManagement.Serialization;
 using CHARK.GameManagement.Storage;
-using CHARK.GameManagement.Systems;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
@@ -243,42 +243,68 @@ namespace CHARK.GameManagement
         }
 
         /// <returns>
-        /// <c>true</c> if <paramref name="system"/> of type <see cref="TSystem"/> is retrieved
-        /// from <see cref="entityManager"/> or <c>false</c> otherwise.
+        /// <c>true</c> if <paramref name="actor"/> of the given type is retrieved
+        /// from <see cref="actorManager"/> or <c>false</c> otherwise.
         /// </returns>
-        public static bool TryGetSystem<TSystem>(out TSystem system) where TSystem : ISystem
+        public static bool TryGetActor<TActor>(out TActor actor) where TActor : IActor
         {
             var gameManager = GetGameManager();
-            var entityManager = gameManager.entityManager;
+            var actorManager = gameManager.actorManager;
 
-            return entityManager.TryGetEntity(out system);
+            return actorManager.TryGetActor(out actor);
         }
 
         /// <returns>
-        /// Enumerable of systems of type <see cref="TSystem"/> retrieved from
-        /// <see cref="entityManager"/>.
+        /// Enumerable containing actors of the given type, retrieved from <see cref="actorManager"/>.
         /// </returns>
-        public static IEnumerable<TSystem> GetSystems<TSystem>() where TSystem : ISystem
+        public static IEnumerable<TActor> GetActors<TActor>() where TActor : IActor
         {
             var gameManager = GetGameManager();
-            var entityManager = gameManager.entityManager;
-            var entities = entityManager.GetEntities<TSystem>();
+            var actorManager = gameManager.actorManager;
 
-            return entities;
+            return actorManager.GetActors<TActor>();
         }
 
         /// <returns>
-        /// System of type <see cref="TSystem"/> retrieved from <see cref="entityManager"/>.
+        /// Actor of given type, retrieved from <see cref="actorManager"/>.
         /// </returns>
         /// <exception cref="Exception">
-        /// if system of type <see cref="TSystem"/> is not found.
+        /// if the actor of given type is not found.
         /// </exception>
-        public static TSystem GetSystem<TSystem>() where TSystem : ISystem
+        public static TActor GetActor<TActor>() where TActor : IActor
         {
             var gameManager = GetGameManager();
-            var entityManager = gameManager.entityManager;
+            var actorManager = gameManager.actorManager;
 
-            return entityManager.GetEntity<TSystem>();
+            return actorManager.GetActor<TActor>();
+        }
+
+        /// <summary>
+        /// Add <paramref name="actor"/> of the given type from the <see cref="actorManager"/>.
+        /// </summary>
+        /// <returns>
+        /// <c>true</c> if given <paramref name="actor"/> is added or <c>false</c> otherwise.
+        /// </returns>
+        public static bool AddActor<TActor>(TActor actor) where TActor : IActor
+        {
+            var gameManager = GetGameManager();
+            var actorManager = gameManager.actorManager;
+
+            return actorManager.AddActor(actor);
+        }
+
+        /// <summary>
+        /// Remove <paramref name="actor"/> of the given type from the <see cref="actorManager"/>.
+        /// </summary>
+        /// <returns>
+        /// <c>true</c> if given <paramref name="actor"/> is removed or <c>false</c> otherwise.
+        /// </returns>
+        public static bool RemoveActor<TActor>(TActor actor) where TActor : IActor
+        {
+            var gameManager = GetGameManager();
+            var actorManager = gameManager.actorManager;
+
+            return actorManager.RemoveActor(actor);
         }
 
         /// <inheritdoc cref="IMessageBus.Publish{TMessage}"/>

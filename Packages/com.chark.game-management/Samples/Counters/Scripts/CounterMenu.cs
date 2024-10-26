@@ -16,7 +16,7 @@ namespace CHARK.GameManagement.Samples.Counters
         private void Awake()
         {
             // You can fetch systems from GameManager in any component
-            counterSystem = GameManager.GetSystem<ICounterSystem>();
+            counterSystem = GameManager.GetActor<ICounterSystem>();
         }
 
         private void Start()

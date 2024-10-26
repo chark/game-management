@@ -1,12 +1,11 @@
 ﻿using System;
 using System.IO;
+using CHARK.GameManagement.Actors;
 using CHARK.GameManagement.Assets;
-using CHARK.GameManagement.Entities;
 using CHARK.GameManagement.Messaging;
 using CHARK.GameManagement.Serialization;
 using CHARK.GameManagement.Settings;
 using CHARK.GameManagement.Storage;
-using CHARK.GameManagement.Systems;
 using CHARK.GameManagement.Utilities;
 using UnityEngine;
 
@@ -29,12 +28,12 @@ namespace CHARK.GameManagement
         private const string IsDebuggingEnabledKey = nameof(GameManager) + "." + nameof(IsDebuggingEnabled);
         private static bool isDebuggingEnabled;
 
-        private bool isSystemsInitialized;
+        private bool isInitialActorStartupCompleted;
 
         private ISerializer serializer;
         private IStorage runtimeStorage;
         private IResourceLoader resourceLoader;
-        private IEntityManager entityManager;
+        private IActorManager actorManager;
         private IMessageBus messageBus;
 
         private void Awake()
@@ -79,24 +78,54 @@ namespace CHARK.GameManagement
 
         private void FixedUpdate()
         {
-            NotifyFixedUpdateListeners();
+            var context = new PhysicsUpdateContext(deltaTime: Time.deltaTime, time: Time.time);
+            var actors = actorManager.Actors;
+
+            for (var index = actors.Count - 1; index >= 0; index--)
+            {
+                var actor = actors[index];
+
+                try
+                {
+                    actor.UpdatePhysics(context);
+                }
+                catch (Exception exception)
+                {
+                    Logging.LogException(exception, this);
+                }
+            }
         }
 
         private void Update()
         {
-            NotifyUpdateListeners();
+            var context = new FrameUpdateContext(deltaTime: Time.deltaTime, time: Time.time);
+            var actors = actorManager.Actors;
+
+            for (var index = actors.Count - 1; index >= 0; index--)
+            {
+                var actor = actors[index];
+
+                try
+                {
+                    actor.UpdateFrame(context);
+                }
+                catch (Exception exception)
+                {
+                    Logging.LogException(exception, this);
+                }
+            }
         }
 
         private void OnDestroy()
         {
-            OnBeforeDestroy();
+            OnDisposeEntered();
 
-            if (entityManager != null)
+            if (actorManager != null)
             {
-                var systems = entityManager.GetEntities<ISystem>();
-                foreach (var system in systems)
+                var actors = actorManager.Actors;
+                foreach (var actor in actors)
                 {
-                    RemoveSystem(system);
+                    RemoveActor(actor);
                 }
             }
 
@@ -105,26 +134,35 @@ namespace CHARK.GameManagement
             {
                 Logging.LogDebug($"{GetGameManagerName()} disposed", this);
             }
+
+            OnDisposedExited();
         }
 
         /// <summary>
-        /// Called when systems are about to initialize and should be added to the game.
+        /// Called when actors are about to initialize and should be added to the game.
         /// </summary>
-        protected virtual void OnBeforeInitializeSystems()
+        protected virtual void OnInitializeActorsEntered()
         {
         }
 
         /// <summary>
-        /// Called when all systems are initialized.
+        /// Called when all actors are initialized.
         /// </summary>
-        protected virtual void OnAfterInitializeSystems()
+        protected virtual void OnInitializeActorsExited()
         {
         }
 
         /// <summary>
-        /// Called the game manager is about to be destroyed.
+        /// Called the game manager is about to be disposed.
         /// </summary>
-        protected virtual void OnBeforeDestroy()
+        protected virtual void OnDisposeEntered()
+        {
+        }
+
+        /// <summary>
+        /// Called the game manager is destroyed.
+        /// </summary>
+        protected virtual void OnDisposedExited()
         {
         }
 
@@ -137,25 +175,38 @@ namespace CHARK.GameManagement
         }
 
         /// <summary>
-        /// Add <paramref name="system"/> to <see cref="entityManager"/>.
+        /// Add given <paramref name="actor"/> to the <see cref="actorManager"/>.
         /// </summary>
-        protected void AddSystem(ISystem system)
+        protected void AddActor(IActor actor)
         {
-            if (entityManager.AddEntity(system) && isSystemsInitialized)
+            if (actorManager.AddActor(actor) == false)
             {
-                system.OnInitialized();
+                return;
             }
+
+            if (isInitialActorStartupCompleted)
+            {
+                // We automatically initialize after all initial actors are initialized only. This way we can finely
+                // control the init order on startup.
+                actor.Initialize();
+            }
+
+            Publish(new ActorAddedMessage(actor));
         }
 
         /// <summary>
-        /// Remove <paramref name="system"/> from <see cref="entityManager"/>.
+        /// Remove <paramref name="actor"/> from the <see cref="actorManager"/>.
         /// </summary>
-        protected void RemoveSystem(ISystem system)
+        protected void RemoveActor(IActor actor)
         {
-            if (entityManager.RemoveEntity(system))
+            if (actorManager.RemoveActor(actor) == false)
             {
-                system.OnDisposed();
+                return;
             }
+
+            actor.Dispose();
+
+            Publish(new ActorRemovedMessage(actor));
         }
 
         /// <returns>
@@ -188,12 +239,12 @@ namespace CHARK.GameManagement
         }
 
         /// <returns>
-        /// New <see cref="IEntityManager"/> instance.
+        /// New <see cref="IActorManager"/> instance.
         /// </returns>
-        protected virtual IEntityManager CreateEntityManager()
+        protected virtual IActorManager CreateActorManager()
         {
             var profile = Settings.ActiveProfile;
-            return new DefaultEntityManager(profile);
+            return new DefaultActorManager(profile);
         }
 
         /// <returns>
@@ -208,9 +259,9 @@ namespace CHARK.GameManagement
         {
             InitializeCore();
 
-            OnBeforeInitializeSystems();
-            InitializeSystems();
-            OnAfterInitializeSystems();
+            OnInitializeActorsEntered();
+            InitializeActors();
+            OnInitializeActorsExited();
         }
 
         private void InitializeCore()
@@ -219,36 +270,32 @@ namespace CHARK.GameManagement
             serializer = CreateSerializer();
             runtimeStorage = CreateRuntimeStorage();
             resourceLoader = CreateResourceLoader();
-            entityManager = CreateEntityManager();
+            actorManager = CreateActorManager();
             messageBus = CreateMessageBus();
         }
 
-        private void InitializeSystems()
+        private void InitializeActors()
         {
-            var entities = entityManager.Entities;
+            var profile = Settings.ActiveProfile;
+            var actors = actorManager.Actors;
 
             // ReSharper disable once ForCanBeConvertedToForeach
-            for (var index = 0; index < entities.Count; index++)
+            for (var index = 0; index < actors.Count; index++)
             {
-                var entity = entities[index];
-                if (!(entity is ISystem system))
-                {
-                    continue;
-                }
+                var actor = actors[index];
 
-                var profile = Settings.ActiveProfile;
                 if (profile.IsVerboseLogging)
                 {
-                    var systemType = entity.GetType();
-                    var systemName = systemType.Name;
+                    var actorType = actor.GetType();
+                    var actorName = actorType.Name;
 
-                    Logging.LogDebug($"Initializing system {systemName}", this);
+                    Logging.LogDebug($"Initializing actor {actorName}", this);
                 }
 
-                system.OnInitialized();
+                actor.Initialize();
             }
 
-            isSystemsInitialized = true;
+            isInitialActorStartupCompleted = true;
         }
 
         private static GameManager GetGameManager()
@@ -256,7 +303,7 @@ namespace CHARK.GameManagement
 #if UNITY_EDITOR
             if (GameManagerUtilities.IsApplicationQuitting)
             {
-                // If application is quitting, we don't care about warnings.
+                // We don't care about warnings if the application is quitting.
                 return currentGameManager;
             }
 
@@ -274,38 +321,6 @@ namespace CHARK.GameManagement
 #endif
 
             return currentGameManager;
-        }
-
-        private void NotifyFixedUpdateListeners()
-        {
-            var deltaTime = Time.deltaTime;
-            var entities = entityManager.Entities;
-
-            // ReSharper disable once ForCanBeConvertedToForeach
-            for (var index = 0; index < entities.Count; index++)
-            {
-                var entity = entities[index];
-                if (entity is IFixedUpdateListener fixedUpdateListener)
-                {
-                    fixedUpdateListener.OnFixedUpdated(deltaTime);
-                }
-            }
-        }
-
-        private void NotifyUpdateListeners()
-        {
-            var deltaTime = Time.deltaTime;
-            var entities = entityManager.Entities;
-
-            // ReSharper disable once ForCanBeConvertedToForeach
-            for (var index = 0; index < entities.Count; index++)
-            {
-                var entity = entities[index];
-                if (entity is IUpdateListener updateListener)
-                {
-                    updateListener.OnUpdated(deltaTime);
-                }
-            }
         }
     }
 }
