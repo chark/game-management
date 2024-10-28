@@ -65,8 +65,7 @@ namespace CHARK.GameManagement
         }
 
         /// <inheritdoc cref="IResourceLoader.GetResources{TResource}"/>
-        public static IEnumerable<TResource> GetResources<TResource>(string path = null)
-            where TResource : Object
+        public static IEnumerable<TResource> GetResources<TResource>(string path = null) where TResource : Object
         {
             var gameManager = GetGameManager();
             var resourceLoader = gameManager.resourceLoader;
@@ -75,8 +74,7 @@ namespace CHARK.GameManagement
         }
 
         /// <inheritdoc cref="IResourceLoader.TryGetResource{TResource}"/>
-        public static bool TryGetResource<TResource>(string path, out TResource resource)
-            where TResource : Object
+        public static bool TryGetResource<TResource>(string path, out TResource resource) where TResource : Object
         {
             var gameManager = GetGameManager();
             var resourceLoader = gameManager.resourceLoader;
