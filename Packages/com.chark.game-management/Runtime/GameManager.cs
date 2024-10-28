@@ -123,8 +123,9 @@ namespace CHARK.GameManagement
             if (actorManager != null)
             {
                 var actors = actorManager.Actors;
-                foreach (var actor in actors)
+                for (var index = actors.Count - 1; index >= 0; index--)
                 {
+                    var actor = actors[index];
                     RemoveActor(actor);
                 }
             }
