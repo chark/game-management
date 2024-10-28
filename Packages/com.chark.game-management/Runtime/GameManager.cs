@@ -28,7 +28,7 @@ namespace CHARK.GameManagement
         private const string IsDebuggingEnabledKey = nameof(GameManager) + "." + nameof(IsDebuggingEnabled);
         private static bool isDebuggingEnabled;
 
-        private bool isInitialActorStartupCompleted;
+        private bool isActorsInitialized;
 
         private ISerializer serializer;
         private IStorage runtimeStorage;
@@ -118,7 +118,7 @@ namespace CHARK.GameManagement
 
         private void OnDestroy()
         {
-            OnDisposeEntered();
+            OnDestroyEntered();
 
             if (actorManager != null)
             {
@@ -132,37 +132,37 @@ namespace CHARK.GameManagement
             var profile = Settings.ActiveProfile;
             if (profile.IsVerboseLogging)
             {
-                Logging.LogDebug($"{GetGameManagerName()} disposed", this);
+                Logging.LogDebug($"{GetGameManagerName()} destroyed", this);
             }
 
-            OnDisposedExited();
+            OnDestroyExited();
         }
 
         /// <summary>
         /// Called when actors are about to initialize and should be added to the game.
         /// </summary>
-        protected virtual void OnInitializeActorsEntered()
+        protected virtual void OnInitializeEntered()
         {
         }
 
         /// <summary>
         /// Called when all actors are initialized.
         /// </summary>
-        protected virtual void OnInitializeActorsExited()
+        protected virtual void OnInitializeExited()
         {
         }
 
         /// <summary>
         /// Called the game manager is about to be disposed.
         /// </summary>
-        protected virtual void OnDisposeEntered()
+        protected virtual void OnDestroyEntered()
         {
         }
 
         /// <summary>
         /// Called the game manager is destroyed.
         /// </summary>
-        protected virtual void OnDisposedExited()
+        protected virtual void OnDestroyExited()
         {
         }
 
@@ -184,7 +184,7 @@ namespace CHARK.GameManagement
                 return;
             }
 
-            if (isInitialActorStartupCompleted)
+            if (isActorsInitialized)
             {
                 // We automatically initialize after all initial actors are initialized only. This way we can finely
                 // control the init order on startup.
@@ -259,9 +259,9 @@ namespace CHARK.GameManagement
         {
             InitializeCore();
 
-            OnInitializeActorsEntered();
+            OnInitializeEntered();
             InitializeActors();
-            OnInitializeActorsExited();
+            OnInitializeExited();
         }
 
         private void InitializeCore()
@@ -295,7 +295,7 @@ namespace CHARK.GameManagement
                 actor.Initialize();
             }
 
-            isInitialActorStartupCompleted = true;
+            isActorsInitialized = true;
         }
 
         private static GameManager GetGameManager()

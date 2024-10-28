@@ -2,13 +2,13 @@
 {
     internal sealed class DefaultGameManager : GameManager
     {
-        protected override void OnInitializeActorsEntered()
+        protected override void OnInitializeEntered()
         {
             // Initialize systems here
             // AddSystem(new PlayerSystem())
         }
 
-        protected override void OnInitializeActorsExited()
+        protected override void OnInitializeExited()
         {
             // Do stuff with systems here after they're initialized
             // var playerSystem = GetSystem<PlayerSystem>();

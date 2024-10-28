@@ -6,6 +6,24 @@ namespace CHARK.GameManagement
 {
     internal static class GameManagerInitializer
     {
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+        private static void OnSubsystemRegistration()
+        {
+            OnInitialize(InstantiationMode.SubsystemRegistration);
+        }
+
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterAssembliesLoaded)]
+        private static void OnAfterAssembliesLoaded()
+        {
+            OnInitialize(InstantiationMode.AfterAssembliesLoaded);
+        }
+
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSplashScreen)]
+        private static void OnBeforeSplashScreen()
+        {
+            OnInitialize(InstantiationMode.BeforeSplashScreen);
+        }
+
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
         private static void OnBeforeSceneLoad()
         {
