@@ -78,7 +78,7 @@ namespace CHARK.GameManagement
 
         private void FixedUpdate()
         {
-            var context = new PhysicsUpdateContext(deltaTime: Time.deltaTime, time: Time.time);
+            var context = new UpdatePhysicsContext(deltaTime: Time.deltaTime, time: Time.time);
             var actors = actorManager.Actors;
 
             for (var index = actors.Count - 1; index >= 0; index--)
@@ -98,7 +98,7 @@ namespace CHARK.GameManagement
 
         private void Update()
         {
-            var context = new FrameUpdateContext(deltaTime: Time.deltaTime, time: Time.time);
+            var context = new UpdateFrameContext(deltaTime: Time.deltaTime, time: Time.time);
             var actors = actorManager.Actors;
 
             for (var index = actors.Count - 1; index >= 0; index--)

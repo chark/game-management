@@ -1,12 +1,12 @@
 ﻿namespace CHARK.GameManagement.Actors
 {
-    internal readonly struct FrameUpdateContext : IUpdateContext
+    internal readonly struct UpdateFrameContext : IUpdateContext
     {
         public float DeltaTime { get; }
 
         public float Time { get; }
 
-        public FrameUpdateContext(float deltaTime, float time)
+        public UpdateFrameContext(float deltaTime, float time)
         {
             DeltaTime = deltaTime;
             Time = time;
