@@ -22,6 +22,7 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - Renamed `IGameStorage` to `IStorage`.
 - Cancellation tokens can now be used in all async methods.
 - Renamed `IStorage` methods to use `Read*` and `Save*` prefixes to emphasise that these methods interact with data on dist.
+- Project directory name will be used for editor storage keys, this should prevent editor key conflict issues with Parallel sync and similar plugins.
 
 ### Fixed
 

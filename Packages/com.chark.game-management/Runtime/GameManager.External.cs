@@ -29,7 +29,7 @@ namespace CHARK.GameManagement
                     return isDebuggingEnabled;
                 }
 
-                if (TryReadEditorData<bool>(IsDebuggingEnabledKey, out var value))
+                if (TryReadEditorData<bool>(nameof(IsDebuggingEnabled), out var value))
                 {
                     return value;
                 }
@@ -42,7 +42,7 @@ namespace CHARK.GameManagement
                 var newValue = value;
 
 #if UNITY_EDITOR
-                SaveEditorData(IsDebuggingEnabledKey, newValue);
+                SaveEditorData(nameof(IsDebuggingEnabled), newValue);
 #endif
 
                 isDebuggingEnabled = newValue;

@@ -17,16 +17,42 @@ namespace CHARK.GameManagement
     {
         private static GameManager currentGameManager;
 
-        private static readonly IStorage EditorStorage =
 #if UNITY_EDITOR
-            new EditorPrefsStorage(DefaultSerializer.Instance, $"{nameof(GameManager)}.");
-#else
-            NullStorage.Instance;
+        private static IStorage currentEditorStorage;
 #endif
+
+        private static IStorage EditorStorage
+        {
+            get
+            {
+#if UNITY_EDITOR
+                if (currentEditorStorage != default)
+                {
+                    return currentEditorStorage;
+                }
+
+                var projectAssetDirPath = Application.dataPath;
+                var projectDirPath = Path.GetDirectoryName(projectAssetDirPath);
+
+                // Project dir is used as id for editor keys, useful when using Parallel sync or similar.
+                var projectId = string.IsNullOrWhiteSpace(projectAssetDirPath)
+                    ? Application.productName
+                    : Path.GetFileName(projectDirPath);
+
+                currentEditorStorage = new EditorPrefsStorage(
+                    serializer: DefaultSerializer.Instance,
+                    pathPrefix: $"{nameof(GameManager)}.{projectId}."
+                );
+
+                return currentEditorStorage;
+#else
+                return NullStorage.Instance;
+#endif
+            }
+        }
 
         private static GameManagerSettings Settings => GameManagerSettings.Instance;
 
-        private const string IsDebuggingEnabledKey = nameof(GameManager) + "." + nameof(IsDebuggingEnabled);
         private static bool isDebuggingEnabled;
 
         private bool isSystemsInitialized;
@@ -48,7 +74,7 @@ namespace CHARK.GameManagement
             }
 
 #if UNITY_EDITOR
-            if (TryReadEditorData(IsDebuggingEnabledKey, out bool value))
+            if (TryReadEditorData(nameof(IsDebuggingEnabled), out bool value))
             {
                 isDebuggingEnabled = value;
             }
