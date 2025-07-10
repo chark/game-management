@@ -1,8 +1,13 @@
 ﻿using System.Collections.Generic;
 using System.IO;
 using System.Threading;
-using Cysharp.Threading.Tasks;
 using UnityEngine;
+
+#if UNITASK_INSTALLED
+using Cysharp.Threading.Tasks;
+#else
+using System.Threading.Tasks;
+#endif
 
 namespace CHARK.GameManagement.Assets
 {
@@ -36,7 +41,11 @@ namespace CHARK.GameManagement.Assets
         /// <exception cref="System.Exception">
         /// if resource could not be read.
         /// </exception>
+#if UNITASK_INSTALLED
         public UniTask<TResource> ReadResourceAsync<TResource>(
+#else
+        public Task<TResource> ReadResourceAsync<TResource>(
+#endif
             string path,
             CancellationToken cancellationToken = default
         );
@@ -48,7 +57,11 @@ namespace CHARK.GameManagement.Assets
         /// <remarks>
         /// <paramref name="path"/> is relative to <i>StreamingAssets</i> directory.
         /// </remarks>
+#if UNITASK_INSTALLED
         public UniTask<Stream> ReadResourceStreamAsync(
+#else
+        public Task<Stream> ReadResourceStreamAsync(
+#endif
             string path,
             CancellationToken cancellationToken = default
         );

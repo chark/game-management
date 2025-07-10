@@ -32,6 +32,7 @@ internal class MyGameManager : GameManager
 - Data storage with json support
 - Automatic initialization
 - Odin Inspector support
+- UniTask support
 
 ## Installation
 

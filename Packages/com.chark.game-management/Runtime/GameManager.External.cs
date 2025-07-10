@@ -7,9 +7,14 @@ using CHARK.GameManagement.Messaging;
 using CHARK.GameManagement.Serialization;
 using CHARK.GameManagement.Storage;
 using CHARK.GameManagement.Systems;
-using Cysharp.Threading.Tasks;
 using UnityEngine;
 using Object = UnityEngine.Object;
+
+#if UNITASK_INSTALLED
+using Cysharp.Threading.Tasks;
+#else
+using System.Threading.Tasks;
+#endif
 
 namespace CHARK.GameManagement
 {
@@ -55,7 +60,7 @@ namespace CHARK.GameManagement
                     return;
                 }
 
-                Publish(new DebuggingChangedMessage(oldValue, newValue));
+                Publish(new DebuggingChangedMessage(newValue));
             }
         }
 
@@ -88,7 +93,11 @@ namespace CHARK.GameManagement
         }
 
         /// <inheritdoc cref="IResourceLoader.ReadResourceAsync{TResource}"/>
+#if UNITASK_INSTALLED
         public static UniTask<TResource> ReadResourceAsync<TResource>(
+#else
+        public static Task<TResource> ReadResourceAsync<TResource>(
+#endif
             string path,
             CancellationToken cancellationToken = default
         )
@@ -100,7 +109,11 @@ namespace CHARK.GameManagement
         }
 
         /// <inheritdoc cref="IResourceLoader.ReadResourceStreamAsync"/>
+#if UNITASK_INSTALLED
         public static UniTask<Stream> ReadResourceStreamAsync(
+#else
+        public static Task<Stream> ReadResourceStreamAsync(
+#endif
             string path,
             CancellationToken cancellationToken = default
         )
@@ -124,7 +137,11 @@ namespace CHARK.GameManagement
         }
 
         /// <inheritdoc cref="IStorage.ReadDataAsync{TData}"/>
+#if UNITASK_INSTALLED
         public static UniTask<TData> ReadDataAsync<TData>(
+#else
+        public static Task<TData> ReadDataAsync<TData>(
+#endif
             string path,
             CancellationToken cancellationToken = default
         )
@@ -145,7 +162,11 @@ namespace CHARK.GameManagement
         }
 
         /// <inheritdoc cref="IStorage.ReadDataStreamAsync"/>
+#if UNITASK_INSTALLED
         public static UniTask<Stream> ReadDataStreamAsync(
+#else
+        public static Task<Stream> ReadDataStreamAsync(
+#endif
             string path,
             CancellationToken cancellationToken = default
         )
@@ -175,7 +196,11 @@ namespace CHARK.GameManagement
         }
 
         /// <inheritdoc cref="IStorage.SaveDataAsync{TData}"/>
+#if UNITASK_INSTALLED
         public static UniTask SaveDataAsync<TData>(
+#else
+        public static Task SaveDataAsync<TData>(
+#endif
             string path,
             TData data,
             CancellationToken cancellationToken = default
@@ -188,7 +213,11 @@ namespace CHARK.GameManagement
         }
 
         /// <inheritdoc cref="IStorage.SaveDataStreamAsync"/>
+#if UNITASK_INSTALLED
         public static UniTask SaveDataStreamAsync(
+#else
+        public static Task SaveDataStreamAsync(
+#endif
             string path,
             Stream stream,
             CancellationToken cancellationToken = default
@@ -210,7 +239,11 @@ namespace CHARK.GameManagement
         }
 
         /// <inheritdoc cref="IStorage.DeleteDataAsync"/>
+#if UNITASK_INSTALLED
         public static UniTask DeleteDataAsync(
+#else
+        public static Task DeleteDataAsync(
+#endif
             string path,
             CancellationToken cancellationToken = default
         )

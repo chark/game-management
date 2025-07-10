@@ -1,7 +1,12 @@
 ﻿using System.IO;
 using System.Threading;
 using CHARK.GameManagement.Serialization;
+
+#if UNITASK_INSTALLED
 using Cysharp.Threading.Tasks;
+#else
+using System.Threading.Tasks;
+#endif
 
 namespace CHARK.GameManagement.Storage
 {
@@ -50,16 +55,20 @@ namespace CHARK.GameManagement.Storage
             return ReadStream(fullPath);
         }
 
-        public async UniTask<TValue> ReadDataAsync<TValue>(
+#if UNITASK_INSTALLED
+        public async UniTask<TData> ReadDataAsync<TData>(
+#else
+        public async Task<TData> ReadDataAsync<TData>(
+#endif
             string path,
             CancellationToken cancellationToken = default
         )
         {
-            await UniTask.SwitchToThreadPool();
-
+#if UNITASK_INSTALLED
             try
             {
-                if (TryReadData<TValue>(path, out var value))
+                await UniTask.SwitchToThreadPool();
+                if (TryReadData<TData>(path, out var value))
                 {
                     return value;
                 }
@@ -70,9 +79,26 @@ namespace CHARK.GameManagement.Storage
             }
 
             return default;
+#else
+            return await Task.Run(() =>
+                {
+                    if (TryReadData<TData>(path, out var value))
+                    {
+                        return value;
+                    }
+
+                    return default;
+                },
+                cancellationToken
+            );
+#endif
         }
 
+#if UNITASK_INSTALLED
         public async UniTask<Stream> ReadDataStreamAsync(
+#else
+        public async Task<Stream> ReadDataStreamAsync(
+#endif
             string path,
             CancellationToken cancellationToken = default
         )
@@ -82,19 +108,22 @@ namespace CHARK.GameManagement.Storage
                 return Stream.Null;
             }
 
-            await UniTask.SwitchToThreadPool();
-
+#if UNITASK_INSTALLED
             try
             {
+                await UniTask.SwitchToThreadPool();
                 return ReadStream(fullPath);
             }
             finally
             {
                 await UniTask.SwitchToMainThread(cancellationToken);
             }
+#else
+            return await Task.Run(() => ReadStream(fullPath), cancellationToken);
+#endif
         }
 
-        public virtual void SaveData<TValue>(string path, TValue data)
+        public virtual void SaveData<TData>(string path, TData data)
         {
             if (TryGetFullPath(path, out var fullPath) == false)
             {
@@ -119,25 +148,36 @@ namespace CHARK.GameManagement.Storage
             SaveStream(fullPath, stream);
         }
 
-        public async UniTask SaveDataAsync<TValue>(
+#if UNITASK_INSTALLED
+        public async UniTask SaveDataAsync<TData>(
+#else
+        public async Task SaveDataAsync<TData>(
+#endif
             string path,
-            TValue data,
+            TData data,
             CancellationToken cancellationToken = default
         )
         {
-            await UniTask.SwitchToThreadPool();
-
+#if UNITASK_INSTALLED
             try
             {
+                await UniTask.SwitchToThreadPool();
                 SaveData(path, data);
             }
             finally
             {
                 await UniTask.SwitchToMainThread(cancellationToken);
             }
+#else
+            await Task.Run(() => SaveData(path, data), cancellationToken);
+#endif
         }
 
+#if UNITASK_INSTALLED
         public async UniTask SaveDataStreamAsync(
+#else
+        public async Task SaveDataStreamAsync(
+#endif
             string path,
             Stream stream,
             CancellationToken cancellationToken = default
@@ -148,16 +188,19 @@ namespace CHARK.GameManagement.Storage
                 return;
             }
 
-            await UniTask.SwitchToThreadPool();
-
+#if UNITASK_INSTALLED
             try
             {
+                await UniTask.SwitchToThreadPool();
                 SaveStream(fullPath, stream);
             }
             finally
             {
                 await UniTask.SwitchToMainThread(cancellationToken);
             }
+#else
+            await Task.Run(() => SaveStream(fullPath, stream), cancellationToken);
+#endif
         }
 
         public void DeleteData(string path)
@@ -168,21 +211,28 @@ namespace CHARK.GameManagement.Storage
             }
         }
 
+#if UNITASK_INSTALLED
         public async UniTask DeleteDataAsync(
+#else
+        public async Task DeleteDataAsync(
+#endif
             string path,
             CancellationToken cancellationToken = default
         )
         {
-            await UniTask.SwitchToThreadPool();
-
+#if UNITASK_INSTALLED
             try
             {
+                await UniTask.SwitchToThreadPool();
                 Delete(path);
             }
             finally
             {
                 await UniTask.SwitchToMainThread(cancellationToken);
             }
+#else
+            await Task.Run(() => Delete(path), cancellationToken);
+#endif
         }
 
         /// <returns>

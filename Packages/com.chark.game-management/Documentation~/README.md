@@ -292,3 +292,17 @@ Afterward you can fire away your messages like so:
 ```csharp
 GameManager.Publish(new MyMessage());
 ```
+
+## Integrations
+
+### Odin Inspector
+
+Game Management package automatically detects if Odin is installed and tries to use it when possible to draw Editor properties. This works as Odin defines it own Scripting Define Symbols automatically.
+
+### UniTask
+
+By default, Game Management package utilizes `Task` for `async` methods. This can be an issue where load on GC is important. To avoid GC problems, you can use `UniTask` everywhere by defining `UNITASK_INSTALLED` Scripting Define Symbol:
+
+<p align="center">
+  <img src="unitask.png"/>
+</p>

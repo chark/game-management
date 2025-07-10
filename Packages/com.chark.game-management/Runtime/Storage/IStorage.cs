@@ -1,6 +1,11 @@
 ﻿using System.IO;
 using System.Threading;
+
+#if UNITASK_INSTALLED
 using Cysharp.Threading.Tasks;
+#else
+using System.Threading.Tasks;
+#endif
 
 namespace CHARK.GameManagement.Storage
 {
@@ -25,7 +30,11 @@ namespace CHARK.GameManagement.Storage
         /// Persisted <see cref="TData"/> retrieved from given <paramref name="path"/>
         /// asynchronously or <c>default</c> if no data is could be retrieved.
         /// </returns>
+#if UNITASK_INSTALLED
         public UniTask<TData> ReadDataAsync<TData>(
+#else
+        public Task<TData> ReadDataAsync<TData>(
+#endif
             string path,
             CancellationToken cancellationToken = default
         );
@@ -34,7 +43,11 @@ namespace CHARK.GameManagement.Storage
         /// Persisted data <see cref="Stream"/> retrieved from given <paramref name="path"/>
         /// asynchronously or an empty stream if no data is could be retrieved.
         /// </returns>
+#if UNITASK_INSTALLED
         public UniTask<Stream> ReadDataStreamAsync(
+#else
+        public Task<Stream> ReadDataStreamAsync(
+#endif
             string path,
             CancellationToken cancellationToken = default
         );
@@ -55,7 +68,11 @@ namespace CHARK.GameManagement.Storage
         /// Persist <paramref name="data"/> of type <see cref="TData"/> to <paramref name="path"/>.
         /// asynchronously.
         /// </summary>
+#if UNITASK_INSTALLED
         public UniTask SaveDataAsync<TData>(
+#else
+        public Task SaveDataAsync<TData>(
+#endif
             string path,
             TData data,
             CancellationToken cancellationToken = default
@@ -65,7 +82,11 @@ namespace CHARK.GameManagement.Storage
         /// Persist <paramref name="stream"/> of data to given <paramref name="path"/>.
         /// asynchronously.
         /// </summary>
+#if UNITASK_INSTALLED
         public UniTask SaveDataStreamAsync(
+#else
+        public Task SaveDataStreamAsync(
+#endif
             string path,
             Stream stream,
             CancellationToken cancellationToken = default
@@ -79,7 +100,11 @@ namespace CHARK.GameManagement.Storage
         /// <summary>
         /// Delete persisted data from given <paramref name="path"/> asynchronously.
         /// </summary>
+#if UNITASK_INSTALLED
         public UniTask DeleteDataAsync(
+#else
+        public Task DeleteDataAsync(
+#endif
             string path,
             CancellationToken cancellationToken = default
         );

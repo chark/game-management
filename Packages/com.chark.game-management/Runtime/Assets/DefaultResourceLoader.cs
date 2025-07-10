@@ -4,9 +4,14 @@ using System.IO;
 using System.Threading;
 using CHARK.GameManagement.Serialization;
 using CHARK.GameManagement.Utilities;
-using Cysharp.Threading.Tasks;
 using UnityEngine;
 using Object = UnityEngine.Object;
+
+#if UNITASK_INSTALLED
+using Cysharp.Threading.Tasks;
+#else
+using System.Threading.Tasks;
+#endif
 
 namespace CHARK.GameManagement.Assets
 {
@@ -48,7 +53,11 @@ namespace CHARK.GameManagement.Assets
             return false;
         }
 
+#if UNITASK_INSTALLED
         public async UniTask<TResource> ReadResourceAsync<TResource>(
+#else
+        public async Task<TResource> ReadResourceAsync<TResource>(
+#endif
             string path,
             CancellationToken cancellationToken
         )
@@ -79,7 +88,11 @@ namespace CHARK.GameManagement.Assets
         }
 
 #pragma warning disable CS1998
+#if UNITASK_INSTALLED
         public async UniTask<Stream> ReadResourceStreamAsync(
+#else
+        public async Task<Stream> ReadResourceStreamAsync(
+#endif
 #pragma warning restore CS1998
             string path,
             CancellationToken cancellationToken = default
