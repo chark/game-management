@@ -1,6 +1,6 @@
 # Game Management
 
-[![Unity 2022.3+](https://img.shields.io/badge/unity-2022.3%2B-blue.svg)](https://unity3d.com/get-unity/download)
+[![Unity 6000.0+](https://img.shields.io/badge/unity-6000.0%2B-blue.svg)](https://unity3d.com/get-unity/download)
 [![openupm](https://img.shields.io/npm/v/com.chark.game-management?label=openupm&registry_uri=https://package.openupm.com)](https://openupm.com/packages/com.chark.game-management/)
 [![Actions Status](https://github.com/chark/game-management/workflows/CI/badge.svg)](https://github.com/chark/game-management/actions)
 
