@@ -5,12 +5,15 @@
     "name": "CHARK",
     "url": "https://chark.io"
   },
-  "version": "0.0.2",
-  "unity": "2022.3",
+  "version": "0.0.3",
+  "unity": "6000.0",
   "description": "Essential and minimalistic game management tools: messaging, service locator, data-storage and more.",
   "keywords": [
     "unity",
-    "architecture"
+    "architecture",
+    "servicelocator",
+    "messagebus",
+    "data"
   ],
   "samples": [
     {
