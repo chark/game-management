@@ -14,6 +14,7 @@
 - `DebuggingChangedMessage` which can be used to check if `GameManager.IsDebuggingEnabled` changes.
 - `ApplicationQuittingMessage` which can be used to detect if application is quitting (works in Editor as well).
 - Caching to `DefaultEntityManager`.
+- `OnStarted` to `GameManager` which can be used to hook into the `Start()` method.
 
 ### Changed
 
@@ -23,6 +24,7 @@
 - Renamed `IStorage` methods to use `Read*` and `Save*` prefixes to emphasise that these methods interact with data on dist.
 - Project directory name will be used for editor storage keys, this should prevent editor key conflict issues with Parallel sync and similar plugins.
 - UniTask is now optional and is no longer pre-packaged. To enable it, define `UNITASK_INSTALLED` scripting define symbol.
+- Unity Lifecycle methods to use `protected` instead of `private` in `GameManager`.
 
 ### Fixed
 
