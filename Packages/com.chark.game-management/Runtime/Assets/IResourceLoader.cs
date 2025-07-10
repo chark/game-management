@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.IO;
 using System.Threading;
-using System.Threading.Tasks;
+using Cysharp.Threading.Tasks;
 using UnityEngine;
 
 namespace CHARK.GameManagement.Assets
@@ -28,15 +28,15 @@ namespace CHARK.GameManagement.Assets
             where TResource : Object;
 
         /// <returns>
-        /// Resource of type <see cref="TResource"/> retrieved from given <paramref name="path"/>.
+        /// Resource of type <see cref="TResource"/> retrieved from given <paramref name="path"/> or
         /// </returns>
         /// <remarks>
         /// <paramref name="path"/> is relative to <i>StreamingAssets</i> directory.
         /// </remarks>
         /// <exception cref="System.Exception">
-        /// if <see cref="TResource"/> could not be retrieved.
+        /// if resource could not be read.
         /// </exception>
-        public Task<TResource> ReadResourceAsync<TResource>(
+        public UniTask<TResource> ReadResourceAsync<TResource>(
             string path,
             CancellationToken cancellationToken = default
         );
@@ -48,7 +48,7 @@ namespace CHARK.GameManagement.Assets
         /// <remarks>
         /// <paramref name="path"/> is relative to <i>StreamingAssets</i> directory.
         /// </remarks>
-        public Task<Stream> ReadResourceStreamAsync(
+        public UniTask<Stream> ReadResourceStreamAsync(
             string path,
             CancellationToken cancellationToken = default
         );

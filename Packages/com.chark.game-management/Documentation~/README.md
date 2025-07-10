@@ -97,6 +97,11 @@ internal sealed class MyGameManager : GameManager
         // Do stuff with systems here after they're initialized and handle general game init logic
     }
 
+    protected override void OnStarted() 
+    {
+        // Start() equivalent
+    }
+
     protected override void OnBeforeDestroy()
     {
         // Cleanup your game
@@ -203,6 +208,14 @@ GameManager.IsDebuggingEnabled = false;
 
 // Check for debug mode state changes and react accordingly
 GameManager.AddListener<DebuggingChangedMessage>(message => { });
+
+// Check if application is quitting (works in Editor and builds)
+GameManager.AddListener<ApplicationQuittingMessage>(message => { });
+
+// Check if application is currently quitting (works in Editor and builds)
+if (GameManager.IsApplicationQuitting)
+{
+}
 ```
 
 ### Systems

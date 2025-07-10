@@ -2,12 +2,12 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Threading;
-using System.Threading.Tasks;
 using CHARK.GameManagement.Assets;
 using CHARK.GameManagement.Messaging;
 using CHARK.GameManagement.Serialization;
 using CHARK.GameManagement.Storage;
 using CHARK.GameManagement.Systems;
+using Cysharp.Threading.Tasks;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
@@ -15,10 +15,6 @@ namespace CHARK.GameManagement
 {
     public abstract partial class GameManager
     {
-        /// <summary>
-        /// <c>true</c> if debug mode is enabled or <c>false</c> otherwise. When this value changes, a
-        /// <see cref="DebuggingChangedMessage"/> is raised.
-        /// </summary>
         public static bool IsDebuggingEnabled
         {
             get
@@ -59,10 +55,14 @@ namespace CHARK.GameManagement
                     return;
                 }
 
-                var message = new DebuggingChangedMessage(oldValue, newValue);
-                Publish(message);
+                Publish(new DebuggingChangedMessage(oldValue, newValue));
             }
         }
+
+        /// <summary>
+        /// Is the application quitting right now?
+        /// </summary>
+        public static bool IsApplicationQuitting => GameManagerUtilities.IsApplicationQuitting;
 
         /// <inheritdoc cref="IResourceLoader.GetResources{TResource}"/>
         public static IEnumerable<TResource> GetResources<TResource>(string path = null)
@@ -78,14 +78,17 @@ namespace CHARK.GameManagement
         public static bool TryGetResource<TResource>(string path, out TResource resource)
             where TResource : Object
         {
-            var gameManager = GetGameManager();
-            var resourceLoader = gameManager.resourceLoader;
+            if (TryGetGameManager(out var gameManager) == false)
+            {
+                resource = null;
+                return false;
+            }
 
-            return resourceLoader.TryGetResource(path, out resource);
+            return gameManager.resourceLoader.TryGetResource(path, out resource);
         }
 
         /// <inheritdoc cref="IResourceLoader.ReadResourceAsync{TResource}"/>
-        public static Task<TResource> ReadResourceAsync<TResource>(
+        public static UniTask<TResource> ReadResourceAsync<TResource>(
             string path,
             CancellationToken cancellationToken = default
         )
@@ -97,7 +100,7 @@ namespace CHARK.GameManagement
         }
 
         /// <inheritdoc cref="IResourceLoader.ReadResourceStreamAsync"/>
-        public static Task<Stream> ReadResourceStreamAsync(
+        public static UniTask<Stream> ReadResourceStreamAsync(
             string path,
             CancellationToken cancellationToken = default
         )
@@ -111,14 +114,17 @@ namespace CHARK.GameManagement
         /// <inheritdoc cref="IStorage.TryReadData{TData}"/>
         public static bool TryReadData<TData>(string path, out TData data)
         {
-            var gameManager = GetGameManager();
-            var runtimeStorage = gameManager.runtimeStorage;
+            if (TryGetGameManager(out var gameManager) == false)
+            {
+                data = default;
+                return false;
+            }
 
-            return runtimeStorage.TryReadData(path, out data);
+            return gameManager.runtimeStorage.TryReadData(path, out data);
         }
 
         /// <inheritdoc cref="IStorage.ReadDataAsync{TData}"/>
-        public static Task<TData> ReadDataAsync<TData>(
+        public static UniTask<TData> ReadDataAsync<TData>(
             string path,
             CancellationToken cancellationToken = default
         )
@@ -139,7 +145,7 @@ namespace CHARK.GameManagement
         }
 
         /// <inheritdoc cref="IStorage.ReadDataStreamAsync"/>
-        public static Task<Stream> ReadDataStreamAsync(
+        public static UniTask<Stream> ReadDataStreamAsync(
             string path,
             CancellationToken cancellationToken = default
         )
@@ -169,7 +175,7 @@ namespace CHARK.GameManagement
         }
 
         /// <inheritdoc cref="IStorage.SaveDataAsync{TData}"/>
-        public static Task SaveDataAsync<TData>(
+        public static UniTask SaveDataAsync<TData>(
             string path,
             TData data,
             CancellationToken cancellationToken = default
@@ -182,7 +188,7 @@ namespace CHARK.GameManagement
         }
 
         /// <inheritdoc cref="IStorage.SaveDataStreamAsync"/>
-        public static Task SaveDataStreamAsync(
+        public static UniTask SaveDataStreamAsync(
             string path,
             Stream stream,
             CancellationToken cancellationToken = default
@@ -204,7 +210,7 @@ namespace CHARK.GameManagement
         }
 
         /// <inheritdoc cref="IStorage.DeleteDataAsync"/>
-        public static Task DeleteDataAsync(
+        public static UniTask DeleteDataAsync(
             string path,
             CancellationToken cancellationToken = default
         )
@@ -248,10 +254,13 @@ namespace CHARK.GameManagement
         /// </returns>
         public static bool TryGetSystem<TSystem>(out TSystem system) where TSystem : ISystem
         {
-            var gameManager = GetGameManager();
-            var entityManager = gameManager.entityManager;
+            if (TryGetGameManager(out var gameManager) == false)
+            {
+                system = default;
+                return false;
+            }
 
-            return entityManager.TryGetEntity(out system);
+            return gameManager.entityManager.TryGetEntity(out system);
         }
 
         /// <returns>
@@ -311,19 +320,25 @@ namespace CHARK.GameManagement
         /// <inheritdoc cref="ISerializer.TryDeserializeValue{TValue}"/>
         public static bool TryDeserializeValue<TValue>(string value, out TValue deserializedValue)
         {
-            var gameManager = GetGameManager();
-            var serializer = gameManager.serializer;
+            if (TryGetGameManager(out var gameManager) == false)
+            {
+                deserializedValue = default;
+                return false;
+            }
 
-            return serializer.TryDeserializeValue(value, out deserializedValue);
+            return gameManager.serializer.TryDeserializeValue(value, out deserializedValue);
         }
 
         /// <inheritdoc cref="ISerializer.TrySerializeValue{TValue}"/>
         public static bool TrySerializeValue<TValue>(TValue value, out string serializedValue)
         {
-            var gameManager = GetGameManager();
-            var serializer = gameManager.serializer;
+            if (TryGetGameManager(out var gameManager) == false)
+            {
+                serializedValue = string.Empty;
+                return false;
+            }
 
-            return serializer.TrySerializeValue(value, out serializedValue);
+            return gameManager.serializer.TrySerializeValue(value, out serializedValue);
         }
     }
 }

@@ -23,4 +23,11 @@ namespace CHARK.GameManagement
             IsDebuggingEnabled = isDebuggingEnabledNew;
         }
     }
+
+    /// <summary>
+    /// Raised when <see cref="GameManager.IsApplicationQuitting"/> is set to <c>true</c>.
+    /// </summary>
+    public readonly struct ApplicationQuittingMessage : IMessage
+    {
+    }
 }

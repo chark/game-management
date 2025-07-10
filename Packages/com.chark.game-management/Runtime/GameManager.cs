@@ -63,7 +63,7 @@ namespace CHARK.GameManagement
         private IEntityManager entityManager;
         private IMessageBus messageBus;
 
-        private void Awake()
+        protected void Awake()
         {
             if (currentGameManager && currentGameManager != this)
             {
@@ -78,8 +78,6 @@ namespace CHARK.GameManagement
             {
                 isDebuggingEnabled = value;
             }
-#else
-            isDebuggingEnabled = Debug.isDebugBuild;
 #endif
 
             var isInitialized = currentGameManager == true;
@@ -103,17 +101,17 @@ namespace CHARK.GameManagement
             }
         }
 
-        private void FixedUpdate()
+        protected void FixedUpdate()
         {
             NotifyFixedUpdateListeners();
         }
 
-        private void Update()
+        protected void Update()
         {
             NotifyUpdateListeners();
         }
 
-        private void OnDestroy()
+        protected void OnDestroy()
         {
             OnBeforeDestroy();
 
@@ -133,6 +131,11 @@ namespace CHARK.GameManagement
             }
         }
 
+        protected void Start()
+        {
+            OnStarted();
+        }
+
         /// <summary>
         /// Called when systems are about to initialize and should be added to the game.
         /// </summary>
@@ -144,6 +147,13 @@ namespace CHARK.GameManagement
         /// Called when all systems are initialized.
         /// </summary>
         protected virtual void OnAfterInitializeSystems()
+        {
+        }
+
+        /// <summary>
+        /// Called when the manager starts.
+        /// </summary>
+        protected virtual void OnStarted()
         {
         }
 
@@ -277,6 +287,18 @@ namespace CHARK.GameManagement
             isSystemsInitialized = true;
         }
 
+        private static bool TryGetGameManager(out GameManager manager)
+        {
+            if (currentGameManager == false)
+            {
+                manager = null;
+                return false;
+            }
+
+            manager = currentGameManager;
+            return true;
+        }
+
         private static GameManager GetGameManager()
         {
 #if UNITY_EDITOR
@@ -311,9 +333,9 @@ namespace CHARK.GameManagement
             for (var index = 0; index < entities.Count; index++)
             {
                 var entity = entities[index];
-                if (entity is IFixedUpdateListener fixedUpdateListener)
+                if (entity is IFixedUpdateListener listener)
                 {
-                    fixedUpdateListener.OnFixedUpdated(deltaTime);
+                    listener.OnFixedUpdated(deltaTime);
                 }
             }
         }
@@ -327,9 +349,9 @@ namespace CHARK.GameManagement
             for (var index = 0; index < entities.Count; index++)
             {
                 var entity = entities[index];
-                if (entity is IUpdateListener updateListener)
+                if (entity is IUpdateListener listener)
                 {
-                    updateListener.OnUpdated(deltaTime);
+                    listener.OnUpdated(deltaTime);
                 }
             }
         }

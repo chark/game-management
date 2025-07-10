@@ -1,7 +1,5 @@
-﻿using System;
-using System.IO;
+﻿using System.IO;
 using System.Threading;
-using System.Threading.Tasks;
 using CHARK.GameManagement.Serialization;
 using Cysharp.Threading.Tasks;
 
@@ -52,7 +50,7 @@ namespace CHARK.GameManagement.Storage
             return ReadStream(fullPath);
         }
 
-        public async Task<TValue> ReadDataAsync<TValue>(
+        public async UniTask<TValue> ReadDataAsync<TValue>(
             string path,
             CancellationToken cancellationToken = default
         )
@@ -71,10 +69,10 @@ namespace CHARK.GameManagement.Storage
                 await UniTask.SwitchToMainThread(cancellationToken);
             }
 
-            throw new Exception($"Could not read data from path: {path}");
+            return default;
         }
 
-        public async Task<Stream> ReadDataStreamAsync(
+        public async UniTask<Stream> ReadDataStreamAsync(
             string path,
             CancellationToken cancellationToken = default
         )
@@ -121,7 +119,7 @@ namespace CHARK.GameManagement.Storage
             SaveStream(fullPath, stream);
         }
 
-        public async Task SaveDataAsync<TValue>(
+        public async UniTask SaveDataAsync<TValue>(
             string path,
             TValue data,
             CancellationToken cancellationToken = default
@@ -139,7 +137,7 @@ namespace CHARK.GameManagement.Storage
             }
         }
 
-        public async Task SaveDataStreamAsync(
+        public async UniTask SaveDataStreamAsync(
             string path,
             Stream stream,
             CancellationToken cancellationToken = default
@@ -170,7 +168,7 @@ namespace CHARK.GameManagement.Storage
             }
         }
 
-        public async Task DeleteDataAsync(
+        public async UniTask DeleteDataAsync(
             string path,
             CancellationToken cancellationToken = default
         )

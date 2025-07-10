@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Threading;
-using System.Threading.Tasks;
 using CHARK.GameManagement.Serialization;
 using CHARK.GameManagement.Utilities;
+using Cysharp.Threading.Tasks;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
@@ -48,16 +48,11 @@ namespace CHARK.GameManagement.Assets
             return false;
         }
 
-        public async Task<TResource> ReadResourceAsync<TResource>(
+        public async UniTask<TResource> ReadResourceAsync<TResource>(
             string path,
             CancellationToken cancellationToken
         )
         {
-            if (string.IsNullOrWhiteSpace(path))
-            {
-                throw new ArgumentException($"{path} cannot be null or empty");
-            }
-
             var actualPath = Path.Combine(Application.streamingAssetsPath, path);
 
 #if UNITY_ANDROID
@@ -84,7 +79,7 @@ namespace CHARK.GameManagement.Assets
         }
 
 #pragma warning disable CS1998
-        public async Task<Stream> ReadResourceStreamAsync(
+        public async UniTask<Stream> ReadResourceStreamAsync(
 #pragma warning restore CS1998
             string path,
             CancellationToken cancellationToken = default

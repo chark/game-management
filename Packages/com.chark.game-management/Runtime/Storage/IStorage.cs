@@ -1,6 +1,6 @@
 ﻿using System.IO;
 using System.Threading;
-using System.Threading.Tasks;
+using Cysharp.Threading.Tasks;
 
 namespace CHARK.GameManagement.Storage
 {
@@ -25,10 +25,7 @@ namespace CHARK.GameManagement.Storage
         /// Persisted <see cref="TData"/> retrieved from given <paramref name="path"/>
         /// asynchronously or <c>default</c> if no data is could be retrieved.
         /// </returns>
-        /// <exception cref="System.Exception">
-        /// if <see cref="TData"/> could not be retrieved.
-        /// </exception>
-        public Task<TData> ReadDataAsync<TData>(
+        public UniTask<TData> ReadDataAsync<TData>(
             string path,
             CancellationToken cancellationToken = default
         );
@@ -37,7 +34,7 @@ namespace CHARK.GameManagement.Storage
         /// Persisted data <see cref="Stream"/> retrieved from given <paramref name="path"/>
         /// asynchronously or an empty stream if no data is could be retrieved.
         /// </returns>
-        public Task<Stream> ReadDataStreamAsync(
+        public UniTask<Stream> ReadDataStreamAsync(
             string path,
             CancellationToken cancellationToken = default
         );
@@ -58,7 +55,7 @@ namespace CHARK.GameManagement.Storage
         /// Persist <paramref name="data"/> of type <see cref="TData"/> to <paramref name="path"/>.
         /// asynchronously.
         /// </summary>
-        public Task SaveDataAsync<TData>(
+        public UniTask SaveDataAsync<TData>(
             string path,
             TData data,
             CancellationToken cancellationToken = default
@@ -68,7 +65,7 @@ namespace CHARK.GameManagement.Storage
         /// Persist <paramref name="stream"/> of data to given <paramref name="path"/>.
         /// asynchronously.
         /// </summary>
-        public Task SaveDataStreamAsync(
+        public UniTask SaveDataStreamAsync(
             string path,
             Stream stream,
             CancellationToken cancellationToken = default
@@ -82,7 +79,7 @@ namespace CHARK.GameManagement.Storage
         /// <summary>
         /// Delete persisted data from given <paramref name="path"/> asynchronously.
         /// </summary>
-        public Task DeleteDataAsync(
+        public UniTask DeleteDataAsync(
             string path,
             CancellationToken cancellationToken = default
         );
