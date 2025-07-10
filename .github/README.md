@@ -4,6 +4,8 @@
 [![openupm](https://img.shields.io/npm/v/com.chark.game-management?label=openupm&registry_uri=https://package.openupm.com)](https://openupm.com/packages/com.chark.game-management/)
 [![Actions Status](https://github.com/chark/game-management/workflows/CI/badge.svg)](https://github.com/chark/game-management/actions)
 
+:warning: **Warning, this is a preview package, expect breaking changes between releases!**
+
 Essential, minimalistic and code-first Game Management tools. Perfect for game-jams and medium-sized projects.
 
 ```csharp
@@ -21,8 +23,6 @@ internal class MyGameManager : GameManager
     }
 }
 ```
-
-:warning: **Warning, this is a preview package, expect breaking changes between releases!**
 
 ## Features
 
