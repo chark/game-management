@@ -1,7 +1,6 @@
 ﻿using System.IO;
 using CHARK.GameManagement.Serialization;
 using CHARK.GameManagement.Settings;
-using CHARK.GameManagement.Utilities;
 
 namespace CHARK.GameManagement.Storage
 {
@@ -28,7 +27,7 @@ namespace CHARK.GameManagement.Storage
             {
                 if (profile.IsVerboseLogging)
                 {
-                    Logging.LogWarning($"File does not exist: {actualPath}", GetType());
+                    GameManager.LogWith(GetType()).LogWarning($"File does not exist: {actualPath}");
                 }
 
                 return Stream.Null;
@@ -49,7 +48,7 @@ namespace CHARK.GameManagement.Storage
 
             if (profile.IsVerboseLogging)
             {
-                Logging.LogDebug($"Saving string to file: {actualPath}", GetType());
+                GameManager.LogWith(GetType()).LogInfo($"Saving string to file: {actualPath}");
             }
 
             File.WriteAllText(actualPath, value);
@@ -67,10 +66,11 @@ namespace CHARK.GameManagement.Storage
 
             if (profile.IsVerboseLogging)
             {
-                Logging.LogDebug(
-                    $"Saving stream (length={stream.Length}, position={stream.Position}) to file: {actualPath}",
-                    GetType()
-                );
+                GameManager
+                    .LogWith(GetType())
+                    .LogInfo(
+                        $"Saving stream (length={stream.Length}, position={stream.Position}) to file: {actualPath}"
+                    );
             }
 
             using var fileStream = new FileStream(actualPath, FileMode.Create);
@@ -87,7 +87,9 @@ namespace CHARK.GameManagement.Storage
 
             if (profile.IsVerboseLogging)
             {
-                Logging.LogDebug($"Deleting file: {actualPath}", GetType());
+                GameManager
+                    .LogWith(GetType())
+                    .LogInfo($"Deleting file: {actualPath}");
             }
 
             File.Delete(actualPath);

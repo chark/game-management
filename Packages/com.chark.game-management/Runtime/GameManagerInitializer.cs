@@ -1,6 +1,6 @@
 ﻿using CHARK.GameManagement.Settings;
-using CHARK.GameManagement.Utilities;
 using UnityEngine;
+using Object = UnityEngine.Object;
 
 namespace CHARK.GameManagement
 {
@@ -58,11 +58,12 @@ namespace CHARK.GameManagement
                 return;
             }
 
-            Logging.LogWarning(
-                $"Game Manager Prefab is not set in profile {profile.Name}"
-                + $" ({profile.GetType().FullName}), using {nameof(DefaultGameManager)}",
-                profile as Object ?? settings
-            );
+            GameManager
+                .LogWith(profile as Object ?? settings)
+                .LogWarning(
+                    $"Game Manager Prefab is not set in profile {profile.Name}"
+                    + $" ({profile.GetType().FullName}), using {nameof(DefaultGameManager)}"
+                );
 
             CreateDefaultGameManager();
         }

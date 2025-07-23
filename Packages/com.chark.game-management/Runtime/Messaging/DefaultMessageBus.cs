@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using CHARK.GameManagement.Utilities;
 
 namespace CHARK.GameManagement.Messaging
 {
@@ -35,7 +34,7 @@ namespace CHARK.GameManagement.Messaging
 #if UNITY_EDITOR
             if (message == null)
             {
-                Logging.LogError($"Message of type {typeof(TMessage)} cannot be null", GetType());
+                GameManager.LogWith(GetType()).LogError($"Message of type {typeof(TMessage)} cannot be null");
                 return;
             }
 #endif
@@ -43,7 +42,7 @@ namespace CHARK.GameManagement.Messaging
             if (TryGetListener<TMessage>(out var messageListener) == false)
             {
 #if UNITY_EDITOR
-                Logging.LogWarning($"Could not find a listener for {typeof(TMessage)}", GetType());
+                GameManager.LogWith(GetType()).LogWarning($"Could not find a listener for {typeof(TMessage)}");
 #endif
                 return;
             }
@@ -56,7 +55,7 @@ namespace CHARK.GameManagement.Messaging
 #if UNITY_EDITOR
             if (listener == null)
             {
-                Logging.LogError($"Listener of type {typeof(TMessage)} cannot be null", GetType());
+                GameManager.LogWith(GetType()).LogError($"Listener of type {typeof(TMessage)} cannot be null");
                 return;
             }
 #endif
@@ -79,7 +78,7 @@ namespace CHARK.GameManagement.Messaging
 #if UNITY_EDITOR
             if (listener == null)
             {
-                Logging.LogError($"Listener of type {typeof(TMessage)} cannot be null", GetType());
+                GameManager.LogWith(GetType()).LogError($"Listener of type {typeof(TMessage)} cannot be null");
                 return;
             }
 #endif
@@ -88,7 +87,7 @@ namespace CHARK.GameManagement.Messaging
             if (TryGetListener<TMessage>(out var messageListener) == false)
             {
 #if UNITY_EDITOR
-                Logging.LogWarning($"Could not find a listener for {typeof(TMessage)}", GetType());
+                GameManager.LogWith(GetType()).LogWarning($"Could not find a listener for {typeof(TMessage)}");
 #endif
                 return;
             }

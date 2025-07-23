@@ -216,6 +216,16 @@ GameManager.AddListener<ApplicationQuittingMessage>(message => { });
 if (GameManager.IsApplicationQuitting)
 {
 }
+
+// Use `object` or `UnityEngine.Object` as context when logging from instance classes
+GameManager.LogWith(this).LogDebug("Verbose log");
+GameManager.LogWith(this).LogInfo("Info log");
+GameManager.LogWith(this).LogWarning("Warn log");
+GameManager.LogWith(this).LogError("Error log");
+try { } catch (Exception exception) { GameManager.LogWith(this).LogError(exception); }
+
+// Use `typeof` or `GetType()` as context when logging from static classes
+GameManager.LogWith(typeof(MyClass)).LogDebug("Log from static class");
 ```
 
 ### Systems

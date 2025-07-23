@@ -7,7 +7,6 @@ using CHARK.GameManagement.Serialization;
 using CHARK.GameManagement.Settings;
 using CHARK.GameManagement.Storage;
 using CHARK.GameManagement.Systems;
-using CHARK.GameManagement.Utilities;
 using UnityEngine;
 
 namespace CHARK.GameManagement
@@ -68,7 +67,7 @@ namespace CHARK.GameManagement
             if (currentGameManager && currentGameManager != this)
             {
                 var gameManagerTypeName = GetType().Name;
-                Logging.LogWarning($"{gameManagerTypeName} is already initialized", this);
+                LogWith(this).LogWarning($"{gameManagerTypeName} is already initialized");
                 Destroy(gameObject);
                 return;
             }
@@ -91,7 +90,7 @@ namespace CHARK.GameManagement
                 var profile = Settings.ActiveProfile;
                 if (profile.IsVerboseLogging)
                 {
-                    Logging.LogDebug($"{GetGameManagerName()} initialized", this);
+                    LogWith(this).LogInfo($"{GetGameManagerName()} initialized");
                 }
 
                 if (profile.IsDontDestroyOnLoad)
@@ -127,7 +126,7 @@ namespace CHARK.GameManagement
             var profile = Settings.ActiveProfile;
             if (profile.IsVerboseLogging)
             {
-                Logging.LogDebug($"{GetGameManagerName()} disposed", this);
+                LogWith(this).LogInfo($"{GetGameManagerName()} disposed");
             }
         }
 
@@ -278,7 +277,7 @@ namespace CHARK.GameManagement
                     var systemType = entity.GetType();
                     var systemName = systemType.Name;
 
-                    Logging.LogDebug($"Initializing system {systemName}", this);
+                    LogWith(this).LogInfo($"Initializing system {systemName}");
                 }
 
                 system.OnInitialized();

@@ -2,7 +2,6 @@
 using System.IO;
 using System.Linq;
 using CHARK.GameManagement.Settings;
-using CHARK.GameManagement.Utilities;
 using UnityEditor;
 using UnityEngine;
 
@@ -114,13 +113,14 @@ namespace CHARK.GameManagement.Editor.Settings
             AssetDatabase.SaveAssets();
             AssetDatabase.Refresh();
 
-            Logging.LogDebug(
-                ""
-                + $"Created new {nameof(GameManagerSettings)} at {DefaultSettingsAssetPath},"
-                + $" you can move this asset to a any directory and rename it as you'd like."
-                + $" <b>Make sure to add {nameof(GameManagerSettingsProfile)} to this asset!</b>",
-                settings
-            );
+            GameManager
+                .LogWith(settings)
+                .LogInfo(
+                    ""
+                    + $"Created new {nameof(GameManagerSettings)} at {DefaultSettingsAssetPath},"
+                    + $" you can move this asset to a any directory and rename it as you'd like."
+                    + $" <b>Make sure to add {nameof(GameManagerSettingsProfile)} to this asset!</b>"
+                );
 
             return settings;
         }

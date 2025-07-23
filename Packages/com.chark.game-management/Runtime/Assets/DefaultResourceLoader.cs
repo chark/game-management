@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Threading;
 using CHARK.GameManagement.Serialization;
-using CHARK.GameManagement.Utilities;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
@@ -130,7 +129,7 @@ namespace CHARK.GameManagement.Assets
             }
             catch (Exception exception)
             {
-                Logging.LogException(exception, GetType());
+                GameManager.LogWith(GetType()).LogError(exception);
                 return Stream.Null;
             }
         }

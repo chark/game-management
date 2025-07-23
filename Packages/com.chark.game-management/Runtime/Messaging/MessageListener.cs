@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using CHARK.GameManagement.Utilities;
 
 namespace CHARK.GameManagement.Messaging
 {
@@ -25,7 +24,7 @@ namespace CHARK.GameManagement.Messaging
                 }
                 catch (Exception exception)
                 {
-                    Logging.LogException(exception, GetType());
+                    GameManager.LogWith(GetType()).LogError(exception);
                 }
             }
         }

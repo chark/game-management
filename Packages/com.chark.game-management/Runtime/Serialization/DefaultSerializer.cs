@@ -2,7 +2,6 @@
 using System.ComponentModel;
 using System.IO;
 using System.Text;
-using CHARK.GameManagement.Utilities;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 
@@ -44,7 +43,7 @@ namespace CHARK.GameManagement.Serialization
             }
             catch (Exception exception)
             {
-                Logging.LogException(exception, GetType());
+                GameManager.LogWith(GetType()).LogError(exception);
                 return false;
             }
         }
@@ -75,7 +74,7 @@ namespace CHARK.GameManagement.Serialization
             }
             catch (Exception exception)
             {
-                Logging.LogException(exception, GetType());
+                GameManager.LogWith(GetType()).LogError(exception);
                 return false;
             }
         }
@@ -108,7 +107,7 @@ namespace CHARK.GameManagement.Serialization
             }
             catch (Exception exception)
             {
-                Logging.LogException(exception, GetType());
+                GameManager.LogWith(GetType()).LogError(exception);
                 return false;
             }
         }
@@ -136,7 +135,7 @@ namespace CHARK.GameManagement.Serialization
             }
             catch (Exception exception)
             {
-                Logging.LogException(exception, GetType());
+                GameManager.LogWith(GetType()).LogError(exception);
                 return false;
             }
         }
@@ -168,7 +167,7 @@ namespace CHARK.GameManagement.Serialization
             }
             catch (Exception exception)
             {
-                Logging.LogException(exception, typeof(DefaultSerializer));
+                GameManager.LogWith(typeof(DefaultSerializer)).LogError(exception);
                 return false;
             }
         }
@@ -197,7 +196,7 @@ namespace CHARK.GameManagement.Serialization
             }
             catch (Exception exception)
             {
-                Logging.LogException(exception, typeof(DefaultSerializer));
+                GameManager.LogWith(typeof(DefaultSerializer)).LogError(exception);
                 return false;
             }
         }

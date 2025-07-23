@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using CHARK.GameManagement.Utilities;
 using UnityEngine;
 
 namespace CHARK.GameManagement.Settings
@@ -68,9 +67,10 @@ namespace CHARK.GameManagement.Settings
             }
             else
             {
-                Logging.LogWarning(
-                    $"Could not find {nameof(GameManagerSettings)}, using defaults",
-                    typeof(GameManagerSettings)
+                GameManager
+                    .LogWith(typeof(GameManagerSettings))
+                    .LogWarning(
+                    $"Could not find {nameof(GameManagerSettings)}, using defaults"
                 );
 
                 currentSettings = CreateInstance<GameManagerSettings>();

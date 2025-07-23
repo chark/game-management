@@ -15,6 +15,7 @@
 - `ApplicationQuittingMessage` which can be used to detect if application is quitting (works in Editor as well).
 - Caching to `DefaultEntityManager`.
 - `OnStarted` to `GameManager` which can be used to hook into the `Start()` method.
+- Very biased logging API which formats log messages in a consistent format.
 
 ### Changed
 

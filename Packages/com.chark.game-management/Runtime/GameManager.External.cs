@@ -7,6 +7,7 @@ using CHARK.GameManagement.Messaging;
 using CHARK.GameManagement.Serialization;
 using CHARK.GameManagement.Storage;
 using CHARK.GameManagement.Systems;
+using CHARK.GameManagement.Utilities;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
@@ -372,6 +373,43 @@ namespace CHARK.GameManagement
             }
 
             return gameManager.serializer.TrySerializeValue(value, out serializedValue);
+        }
+
+        /// <returns>
+        /// Logger which formats messages in a consistent format using <paramref name="contextObject"/>
+        /// as context in log messages.
+        /// </returns>
+        public static GameLogger LogWith(object contextObject)
+        {
+            if (contextObject is Object unityContextObject && unityContextObject)
+            {
+                return LogWith(unityContextObject);
+            }
+
+            if (contextObject != null)
+            {
+                return LogWith(contextObject.GetType());
+            }
+
+            return new GameLogger(typeof(GameLogger));
+        }
+
+        /// <returns>
+        /// Logger which formats messages in a consistent format using <paramref name="contextObject"/>
+        /// as context in log messages.
+        /// </returns>
+        public static GameLogger LogWith(Object contextObject)
+        {
+            return new GameLogger(contextObject);
+        }
+
+        /// <returns>
+        /// Logger which formats messages in a consistent format using <paramref name="contextType"/>
+        /// as context in log messages.
+        /// </returns>
+        public static GameLogger LogWith(Type contextType)
+        {
+            return new GameLogger(contextType);
         }
     }
 }
