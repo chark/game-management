@@ -67,10 +67,27 @@ namespace CHARK.GameManagement.Assets
             var request = UnityEngine.Networking.UnityWebRequest.Get(actualPath);
             var operation = request.SendWebRequest();
 
+#if UNITASK_INSTALLED
             await Cysharp.Threading.Tasks.UnityAsyncExtensions.ToUniTask(
                 operation,
                 cancellationToken: cancellationToken
             );
+#else
+            var completionSource = new TaskCompletionSource<UnityEngine.Networking.UnityWebRequest>();
+            operation.completed += _ =>
+            {
+                if (request.result == UnityEngine.Networking.UnityWebRequest.Result.Success)
+                {
+                    completionSource.SetResult(request);
+                }
+                else
+                {
+                    completionSource.SetException(new Exception(request.error));
+                }
+            };
+
+            await completionSource.Task;
+#endif
 
             var handler = request.downloadHandler;
             var content = handler.text;
@@ -110,10 +127,32 @@ namespace CHARK.GameManagement.Assets
                 var request = UnityEngine.Networking.UnityWebRequest.Get(actualPath);
                 var operation = request.SendWebRequest();
 
+#if UNITASK_INSTALLED
                 await Cysharp.Threading.Tasks.UnityAsyncExtensions.ToUniTask(
                     operation,
                     cancellationToken: cancellationToken
                 );
+#else
+                var completionSource = new TaskCompletionSource<UnityEngine.Networking.UnityWebRequest>();
+                operation.completed += _ =>
+                {
+                    if (request.result == UnityEngine.Networking.UnityWebRequest.Result.Success)
+                    {
+                        completionSource.SetResult(request);
+                    }
+                    else
+                    {
+                        completionSource.SetException(new Exception(request.error));
+                    }
+                };
+
+                await completionSource.Task;
+#endif
+
+                if (cancellationToken.IsCancellationRequested)
+                {
+                    return Stream.Null;
+                }
 
                 var handler = request.downloadHandler;
                 var data = handler.data;
@@ -124,6 +163,12 @@ namespace CHARK.GameManagement.Assets
 
                 return new MemoryStream(data);
 #else
+
+                if (cancellationToken.IsCancellationRequested)
+                {
+                    return Stream.Null;
+                }
+
                 return File.OpenRead(actualPath);
 #endif
             }
