@@ -13,10 +13,10 @@
 - `GameManager.IsApplicationQuitting` flag which can be used to check if app is quitting (works in Editor as well).
 - `DebuggingChangedMessage` which can be used to check if `GameManager.IsDebuggingEnabled` changes.
 - `ApplicationQuittingMessage` which can be used to detect if application is quitting (works in Editor as well).
+- `async` message support via `GameManager.PublishAsync` and new `GameManager.AddListener` and `GameManager.RemoveListener` overloads.
+- Logging API which formats log messages in a consistent format which can be accessed via `GameManager.LogWith()`.
+- `OnStarted` callback to `GameManager` which can be used to hook into the `Start()` method.
 - Caching to `DefaultEntityManager`.
-- `OnStarted` to `GameManager` which can be used to hook into the `Start()` method.
-- Very biased logging API which formats log messages in a consistent format.
-- `async` message support.
 
 ### Changed
 
