@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0385d8bb430249ffb32a899ac14b96cb, type: 3}
   m_Name: DefaultGameManagerSettingsProfile
   m_EditorClassIdentifier: 
-  isActiveProfile: 1
+  isActiveProfile: 0
   isInstantiateAutomatically: 1
   gameManagerPrefab: {fileID: 7741020879531430492, guid: 53f0da16259332b4090db44e5815a981, type: 3}
   instantiationMode: 0
