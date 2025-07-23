@@ -26,10 +26,12 @@ internal class MyGameManager : GameManager
 
 ## Features
 
-- Service Locator
 - Code-first
+- Service Locator
 - Message Bus
-- Data storage with json support
+- JSON Serialization/deserialization utilities
+- File reading/writing with JSON support
+- Logging utilities
 - Automatic initialization
 - Odin Inspector support
 - UniTask support
