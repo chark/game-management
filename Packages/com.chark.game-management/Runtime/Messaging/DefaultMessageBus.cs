@@ -1,5 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading;
+
+#if UNITASK_INSTALLED
+using AsyncTask = Cysharp.Threading.Tasks.UniTask;
+#else
+using AsyncTask = System.Threading.Tasks.Task;
+#endif
 
 namespace CHARK.GameManagement.Messaging
 {
@@ -50,6 +57,30 @@ namespace CHARK.GameManagement.Messaging
             messageListener.Raise(message);
         }
 
+        public async AsyncTask PublishAsync<TMessage>(
+            TMessage message,
+            CancellationToken cancellationToken = default
+        ) where TMessage : IMessage
+        {
+#if UNITY_EDITOR
+            if (message == null)
+            {
+                GameManager.LogWith(GetType()).LogError($"Message of type {typeof(TMessage)} cannot be null");
+                return;
+            }
+#endif
+
+            if (TryGetListener<TMessage>(out var messageListener) == false)
+            {
+#if UNITY_EDITOR
+                GameManager.LogWith(GetType()).LogWarning($"Could not find a listener for {typeof(TMessage)}");
+#endif
+                return;
+            }
+
+            await messageListener.RaiseAsync(message, cancellationToken);
+        }
+
         public void AddListener<TMessage>(OnMessageReceived<TMessage> listener) where TMessage : IMessage
         {
 #if UNITY_EDITOR
@@ -73,7 +104,58 @@ namespace CHARK.GameManagement.Messaging
             listenersByType[listenerType] = newMessageListener;
         }
 
+        public void AddListener<TMessage>(OnMessageReceivedAsync<TMessage> listener) where TMessage : IMessage
+        {
+#if UNITY_EDITOR
+            if (listener == null)
+            {
+                GameManager.LogWith(GetType()).LogError($"Listener of type {typeof(TMessage)} cannot be null");
+                return;
+            }
+#endif
+
+            var listenerType = typeof(TMessage);
+            if (TryGetListener<TMessage>(out var messageListener))
+            {
+                messageListener.AddListener(listener);
+                return;
+            }
+
+            var newMessageListener = new MessageListener();
+            newMessageListener.AddListener(listener);
+
+            listenersByType[listenerType] = newMessageListener;
+        }
+
         public void RemoveListener<TMessage>(OnMessageReceived<TMessage> listener) where TMessage : IMessage
+        {
+#if UNITY_EDITOR
+            if (listener == null)
+            {
+                GameManager.LogWith(GetType()).LogError($"Listener of type {typeof(TMessage)} cannot be null");
+                return;
+            }
+#endif
+
+            var listenerType = typeof(TMessage);
+            if (TryGetListener<TMessage>(out var messageListener) == false)
+            {
+#if UNITY_EDITOR
+                GameManager.LogWith(GetType()).LogWarning($"Could not find a listener for {typeof(TMessage)}");
+#endif
+                return;
+            }
+
+            messageListener.RemoveListener(listener);
+
+            if (messageListener.ListenerCount == 0)
+            {
+                interfacesByListenerTypeCache.Remove(listenerType);
+                listenersByType.Remove(listenerType);
+            }
+        }
+
+        public void RemoveListener<TMessage>(OnMessageReceivedAsync<TMessage> listener) where TMessage : IMessage
         {
 #if UNITY_EDITOR
             if (listener == null)

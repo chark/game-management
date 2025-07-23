@@ -1,6 +1,14 @@
 ﻿using System;
+using System.Threading;
+using System.Threading.Tasks;
 using CHARK.GameManagement.Messaging;
 using NUnit.Framework;
+
+#if UNITASK_INSTALLED
+using AsyncTask = Cysharp.Threading.Tasks.UniTask;
+#else
+using AsyncTask = System.Threading.Tasks.Task;
+#endif
 
 namespace CHARK.GameManagement.Tests.Editor
 {
@@ -15,32 +23,25 @@ namespace CHARK.GameManagement.Tests.Editor
         }
 
         [Test]
-        public void ShouldRegisterAndUnregisterLocalListener()
+        public void ShouldRegisterListener()
         {
+            // Given
+            OnMessageReceived<SimpleTestMessage> onSimpleTestOnMessage = _ => { };
+
             // When
-            messageBus.AddListener<SimpleTestMessage>(OnSimpleTestMessage);
-            messageBus.RemoveListener<SimpleTestMessage>(OnSimpleTestMessage);
+            messageBus.AddListener(onSimpleTestOnMessage);
 
             // Then
-            Assert.AreEqual(0, messageBus.MessageListenerCount);
-            Assert.AreEqual(0, messageBus.TotalListenerCount);
-            Assert.AreEqual(0, messageBus.CachedTypeCount);
-
-            return;
-
-            // Given
-            void OnSimpleTestMessage(SimpleTestMessage message)
-            {
-            }
+            Assert.AreEqual(1, messageBus.MessageListenerCount);
+            Assert.AreEqual(1, messageBus.TotalListenerCount);
+            Assert.AreEqual(1, messageBus.CachedTypeCount);
         }
 
         [Test]
-        public void ShouldRegisterAndUnregisterDelegateListener()
+        public void ShouldRegisterAndUnregisterListener()
         {
             // Given
-            OnMessageReceived<SimpleTestMessage> onSimpleTestOnMessage = _ =>
-            {
-            };
+            OnMessageReceived<SimpleTestMessage> onSimpleTestOnMessage = _ => { };
 
             // When
             messageBus.AddListener(onSimpleTestOnMessage);
@@ -53,13 +54,29 @@ namespace CHARK.GameManagement.Tests.Editor
         }
 
         [Test]
-        public void ShouldRegisterSimpleListenerAndPublishSimpleMessage()
+        public void ShouldRegisterListenersOnce()
+        {
+            // Given
+            OnMessageReceived<SimpleTestMessage> onSimpleTestOnMessage = _ => { };
+
+            // When
+            messageBus.AddListener(onSimpleTestOnMessage);
+            messageBus.AddListener(onSimpleTestOnMessage);
+
+            // Then
+            Assert.AreEqual(1, messageBus.MessageListenerCount);
+            Assert.AreEqual(1, messageBus.TotalListenerCount);
+            Assert.AreEqual(1, messageBus.CachedTypeCount);
+        }
+
+        [Test]
+        public void ShouldRegisterListenerAndPublishSimpleMessage()
         {
             // Given
             var expectedMessage = new SimpleTestMessage();
 
             // When
-            SimpleTestMessage actualMessage = default;
+            SimpleTestMessage actualMessage = null;
             messageBus.AddListener<SimpleTestMessage>(
                 message => { actualMessage = message; }
             );
@@ -71,13 +88,111 @@ namespace CHARK.GameManagement.Tests.Editor
         }
 
         [Test]
+        public async Task ShouldRegisterListenerAndPublishAsyncMessage()
+        {
+            // Given
+            var expectedMessage = new SimpleTestMessage();
+
+            // When
+            SimpleTestMessage actualMessage = null;
+            messageBus.AddListener<SimpleTestMessage>((message, _) =>
+                {
+                    actualMessage = message;
+                    return AsyncTask.CompletedTask;
+                }
+            );
+
+            await messageBus.PublishAsync(expectedMessage, CancellationToken.None);
+
+            // Then
+            Assert.AreEqual(expectedMessage, actualMessage);
+        }
+
+        [Test]
+        public async Task ShouldRegisterListenerAndPublishAsyncDelayedMessages()
+        {
+            // Given
+            var expectedMessage = new SimpleTestMessage();
+
+            // When
+            SimpleTestMessage actualMessageA = null;
+            SimpleTestMessage actualMessageB = null;
+
+            messageBus.AddListener<SimpleTestMessage>(async (message, token) =>
+                {
+                    await AsyncTask.Delay(TimeSpan.FromMilliseconds(10), cancellationToken: token);
+                    actualMessageA = message;
+                }
+            );
+
+            messageBus.AddListener<SimpleTestMessage>(async (message, token) =>
+                {
+                    await AsyncTask.Delay(TimeSpan.FromMilliseconds(20), cancellationToken: token);
+                    actualMessageB = message;
+                }
+            );
+
+            await messageBus.PublishAsync(expectedMessage, CancellationToken.None);
+
+            // Then
+            Assert.AreEqual(expectedMessage, actualMessageA);
+            Assert.AreEqual(expectedMessage, actualMessageB);
+        }
+
+
+        [Test]
+        public async Task ShouldRegisterListenerAndPublishAndCancelAsyncMessage()
+        {
+            // Given
+            var expectedMessage = new SimpleTestMessage();
+
+            // When
+            SimpleTestMessage actualMessageA = null;
+            SimpleTestMessage actualMessageB = null;
+
+            messageBus.AddListener<SimpleTestMessage>(async (message, token) =>
+                {
+                    await AsyncTask.Delay(TimeSpan.FromMilliseconds(100), cancellationToken: token);
+                    if (token.IsCancellationRequested)
+                    {
+                        return;
+                    }
+                    actualMessageA = message;
+                }
+            );
+
+            messageBus.AddListener<SimpleTestMessage>(async (message, token) =>
+                {
+                    await AsyncTask.Delay(TimeSpan.FromMilliseconds(110), cancellationToken: token);
+                    if (token.IsCancellationRequested)
+                    {
+                        return;
+                    }
+                    actualMessageB = message;
+                }
+            );
+
+            var tokenSource = new CancellationTokenSource();
+            var publishTask = messageBus.PublishAsync(expectedMessage, tokenSource.Token);
+
+            tokenSource.Cancel();
+            tokenSource.Dispose();
+
+            await publishTask;
+
+            // Then
+            Assert.IsNull(actualMessageA);
+            Assert.IsNull(actualMessageB);
+        }
+
+        [Test]
         public void ShouldRegisterAbstractListenerAndPublishConcreteMessage()
         {
             // Given
             var expectedMessage = new ChildTestMessage();
 
             // When
-            BaseTestMessage actualMessage = default;
+            BaseTestMessage actualMessage = null;
             messageBus.AddListener<BaseTestMessage>(
                 publishedMessage => { actualMessage = publishedMessage; }
             );

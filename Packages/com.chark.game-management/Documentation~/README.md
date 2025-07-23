@@ -158,12 +158,15 @@ if (GameManager.TryGetSystem<IMySystem>(out var system))
 
 // Subscribe to messages
 GameManager.AddListener<MyMessage>(message => { });
+GameManager.AddListener<MyMessage>(async (message, token) => { });
 
 // Unsubscribe from messages
 GameManager.RemoveListener<MyMessage>(message => { });
+GameManager.RemoveListener<MyMessage>(async (message, token) => { });
 
 // Publish a message
 GameManager.Publish(new MyMessage());
+await GameManager.PublishAsync(new MyMessage(), cancellationToken: cancellationToken);
 
 // Load a set of resources
 var resources = GameManager.LoadResources<MyResource>();
