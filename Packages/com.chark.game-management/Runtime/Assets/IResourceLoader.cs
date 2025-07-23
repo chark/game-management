@@ -52,7 +52,7 @@ namespace CHARK.GameManagement.Assets
 
         /// <returns>
         /// Resource <see cref="Stream"/> retrieved from given <paramref name="path"/>. If something
-        /// fails, an empty stream is be returned.
+        /// fails, an empty stream is returned.
         /// </returns>
         /// <remarks>
         /// <paramref name="path"/> is relative to <i>StreamingAssets</i> directory.
