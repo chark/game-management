@@ -34,14 +34,7 @@ namespace CHARK.GameManagement.Messaging
             for (var index = wrapperListeners.Count - 1; index >= 0; index--)
             {
                 var wrapperListener = wrapperListeners[index];
-                try
-                {
-                    wrapperListener.Invoke(message);
-                }
-                catch (Exception exception)
-                {
-                    GameManager.LogWith(GetType()).LogError(exception);
-                }
+                wrapperListener.Invoke(message);
             }
         }
 
