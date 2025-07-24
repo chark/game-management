@@ -9,17 +9,26 @@
 Essential, minimalistic and code-first Game Management tools. Perfect for game-jams and medium-sized projects.
 
 ```csharp
-internal class MyGameManager : GameManager
+class MyGameManager : GameManager
 {
     protected override void OnBeforeInitializeSystems()
     {
-        AddSystem(new MySystem());
+        AddSystem(new PlayerSystem());
     }
+}
 
-    protected override void OnAfterInitializeSystems()
+class Player : MonoBehavior
+{
+    PlayerSystem playerSystem;
+
+    void Awake() 
     {
-        var mySystem = GetSystem<MySystem>();
-        mySystem.DoSomething();
+        playerSystem = GameManager.GetSystem<PlayerSystem>();
+    }
+    
+    void Start()
+    {
+        GameManager.Publish(new PlayerSpawnedMessage());
     }
 }
 ```
