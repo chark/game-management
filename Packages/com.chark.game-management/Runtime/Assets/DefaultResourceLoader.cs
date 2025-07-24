@@ -68,7 +68,7 @@ namespace CHARK.GameManagement.Assets
             var operation = request.SendWebRequest();
 
 #if UNITASK_INSTALLED
-            await Cysharp.Threading.Tasks.UnityAsyncExtensions.ToUniTask(
+            await UnityAsyncExtensions.ToUniTask(
                 operation,
                 cancellationToken: cancellationToken
             );
@@ -128,7 +128,7 @@ namespace CHARK.GameManagement.Assets
                 var operation = request.SendWebRequest();
 
 #if UNITASK_INSTALLED
-                await Cysharp.Threading.Tasks.UnityAsyncExtensions.ToUniTask(
+                await UnityAsyncExtensions.ToUniTask(
                     operation,
                     cancellationToken: cancellationToken
                 );
