@@ -351,6 +351,15 @@ namespace CHARK.GameManagement
             messageBus.AddListener(listener);
         }
 
+        /// <inheritdoc cref="IMessageBus.AddListener{TMessage}(CHARK.GameManagement.Messaging.OnMessageReceivedCancellableAsync{TMessage})"/>
+        public static void AddListener<TMessage>(OnMessageReceivedCancellableAsync<TMessage> listener) where TMessage : IMessage
+        {
+            var gameManager = GetGameManager();
+            var messageBus = gameManager.messageBus;
+
+            messageBus.AddListener(listener);
+        }
+
         /// <inheritdoc cref="IMessageBus.RemoveListener{TMessage}(CHARK.GameManagement.Messaging.OnMessageReceived{TMessage})"/>
         public static void RemoveListener<TMessage>(OnMessageReceived<TMessage> listener) where TMessage : IMessage
         {
@@ -362,6 +371,15 @@ namespace CHARK.GameManagement
 
         /// <inheritdoc cref="IMessageBus.RemoveListener{TMessage}(CHARK.GameManagement.Messaging.OnMessageReceivedAsync{TMessage})"/>
         public static void RemoveListener<TMessage>(OnMessageReceivedAsync<TMessage> listener) where TMessage : IMessage
+        {
+            var gameManager = GetGameManager();
+            var messageBus = gameManager.messageBus;
+
+            messageBus.RemoveListener(listener);
+        }
+
+        /// <inheritdoc cref="IMessageBus.RemoveListener{TMessage}(CHARK.GameManagement.Messaging.OnMessageReceivedAsync{TMessage})"/>
+        public static void RemoveListener<TMessage>(OnMessageReceivedCancellableAsync<TMessage> listener) where TMessage : IMessage
         {
             var gameManager = GetGameManager();
             var messageBus = gameManager.messageBus;

@@ -4,6 +4,7 @@ using System.Threading;
 
 #if UNITASK_INSTALLED
 using AsyncTask = Cysharp.Threading.Tasks.UniTask;
+using Cysharp.Threading.Tasks;
 #else
 using AsyncTask = System.Threading.Tasks.Task;
 #endif
@@ -18,9 +19,18 @@ namespace CHARK.GameManagement.Messaging
         private readonly IDictionary<Type, MessageListener> listenersByType =
             new Dictionary<Type, MessageListener>();
 
+        private CancellationTokenSource publishCancellationSource;
+
         public int CachedTypeCount => interfacesByListenerTypeCache.Count;
 
         public int MessageListenerCount => listenersByType.Count;
+
+        ~DefaultMessageBus()
+        {
+            publishCancellationSource?.Cancel();
+            publishCancellationSource?.Dispose();
+            publishCancellationSource = null;
+        }
 
         public int TotalListenerCount
         {
@@ -46,21 +56,27 @@ namespace CHARK.GameManagement.Messaging
             }
 #endif
 
-            if (TryGetListener<TMessage>(out var messageListener) == false)
-            {
-#if UNITY_EDITOR
-                GameManager.LogWith(GetType()).LogWarning($"Could not find a listener for {typeof(TMessage)}");
-#endif
-                return;
-            }
+            PublishSyncMessage(message);
 
-            messageListener.Raise(message);
+            publishCancellationSource?.Cancel();
+            publishCancellationSource?.Dispose();
+            publishCancellationSource = null;
+            publishCancellationSource = new CancellationTokenSource();
+
+            var cancellationToken = publishCancellationSource.Token;
+
+#if UNITASK_INSTALLED
+            PublishAsyncMessage(message, cancellationToken).Forget();
+#else
+
+#pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
+            PublishAsyncMessage(message, cancellationToken);
+#pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
+
+#endif
         }
 
-        public async AsyncTask PublishAsync<TMessage>(
-            TMessage message,
-            CancellationToken cancellationToken = default
-        ) where TMessage : IMessage
+        public async AsyncTask PublishAsync<TMessage>(TMessage message, CancellationToken cancellationToken = default) where TMessage : IMessage
         {
 #if UNITY_EDITOR
             if (message == null)
@@ -70,15 +86,19 @@ namespace CHARK.GameManagement.Messaging
             }
 #endif
 
-            if (TryGetListener<TMessage>(out var messageListener) == false)
+            PublishSyncMessage(message);
+
+            publishCancellationSource?.Cancel();
+            publishCancellationSource?.Dispose();
+            publishCancellationSource = null;
+
+            if (cancellationToken == CancellationToken.None)
             {
-#if UNITY_EDITOR
-                GameManager.LogWith(GetType()).LogWarning($"Could not find a listener for {typeof(TMessage)}");
-#endif
-                return;
+                publishCancellationSource = new CancellationTokenSource();
+                cancellationToken =  publishCancellationSource.Token;
             }
 
-            await messageListener.RaiseAsync(message, cancellationToken);
+            await PublishAsyncMessage(message, cancellationToken);
         }
 
         public void AddListener<TMessage>(OnMessageReceived<TMessage> listener) where TMessage : IMessage
@@ -105,6 +125,29 @@ namespace CHARK.GameManagement.Messaging
         }
 
         public void AddListener<TMessage>(OnMessageReceivedAsync<TMessage> listener) where TMessage : IMessage
+        {
+#if UNITY_EDITOR
+            if (listener == null)
+            {
+                GameManager.LogWith(GetType()).LogError($"Listener of type {typeof(TMessage)} cannot be null");
+                return;
+            }
+#endif
+
+            var listenerType = typeof(TMessage);
+            if (TryGetListener<TMessage>(out var messageListener))
+            {
+                messageListener.AddListener(listener);
+                return;
+            }
+
+            var newMessageListener = new MessageListener();
+            newMessageListener.AddListener(listener);
+
+            listenersByType[listenerType] = newMessageListener;
+        }
+
+        public void AddListener<TMessage>(OnMessageReceivedCancellableAsync<TMessage> listener) where TMessage : IMessage
         {
 #if UNITY_EDITOR
             if (listener == null)
@@ -181,6 +224,60 @@ namespace CHARK.GameManagement.Messaging
                 interfacesByListenerTypeCache.Remove(listenerType);
                 listenersByType.Remove(listenerType);
             }
+        }
+
+        public void RemoveListener<TMessage>(OnMessageReceivedCancellableAsync<TMessage> listener) where TMessage : IMessage
+        {
+#if UNITY_EDITOR
+            if (listener == null)
+            {
+                GameManager.LogWith(GetType()).LogError($"Listener of type {typeof(TMessage)} cannot be null");
+                return;
+            }
+#endif
+
+            var listenerType = typeof(TMessage);
+            if (TryGetListener<TMessage>(out var messageListener) == false)
+            {
+#if UNITY_EDITOR
+                GameManager.LogWith(GetType()).LogWarning($"Could not find a listener for {typeof(TMessage)}");
+#endif
+                return;
+            }
+
+            messageListener.RemoveListener(listener);
+
+            if (messageListener.ListenerCount == 0)
+            {
+                interfacesByListenerTypeCache.Remove(listenerType);
+                listenersByType.Remove(listenerType);
+            }
+        }
+
+        private void PublishSyncMessage<TMessage>(TMessage message) where TMessage : IMessage
+        {
+            if (TryGetListener<TMessage>(out var messageListener) == false)
+            {
+#if UNITY_EDITOR
+                GameManager.LogWith(GetType()).LogWarning($"Could not find a listener for {typeof(TMessage)}");
+#endif
+                return;
+            }
+
+            messageListener.Raise(message);
+        }
+
+        private async AsyncTask PublishAsyncMessage<TMessage>(TMessage message, CancellationToken cancellationToken = default) where TMessage : IMessage
+        {
+            if (TryGetListener<TMessage>(out var messageListener) == false)
+            {
+#if UNITY_EDITOR
+                GameManager.LogWith(GetType()).LogWarning($"Could not find a listener for {typeof(TMessage)}");
+#endif
+                return;
+            }
+
+            await messageListener.RaiseAsync(message, cancellationToken);
         }
 
         private bool TryGetListener<TMessage>(out MessageListener listener) where TMessage : IMessage

@@ -17,12 +17,19 @@ namespace CHARK.GameManagement.Messaging
         /// Publish a <paramref name="message"/> and invoke all listeners which are listening for
         /// messages of type <see cref="TMessage"/>.
         /// </summary>
+        /// <remarks>
+        /// This will also trigger <c>async</c> listeners
+        /// </remarks>
         public void Publish<TMessage>(TMessage message) where TMessage : IMessage;
 
-        public AsyncTask PublishAsync<TMessage>(
-            TMessage message,
-            CancellationToken cancellationToken = default
-        ) where TMessage : IMessage;
+        /// <summary>
+        /// Publish an async <paramref name="message"/> and invoke all listeners which are listening for
+        /// messages of type <see cref="TMessage"/>.
+        /// </summary>
+        /// <remarks>
+        /// This will also trigger <c>sync</c> listeners.
+        /// </remarks>
+        public AsyncTask PublishAsync<TMessage>(TMessage message, CancellationToken cancellationToken = default) where TMessage : IMessage;
 
         /// <summary>
         /// Add a new <paramref name="listener"/> which listens for incoming messages of type
@@ -37,6 +44,12 @@ namespace CHARK.GameManagement.Messaging
         public void AddListener<TMessage>(OnMessageReceivedAsync<TMessage> listener) where TMessage : IMessage;
 
         /// <summary>
+        /// Add a new async <paramref name="listener"/> which listens for incoming messages of type
+        /// <see cref="TMessage"/> which can be cancelled via <see cref="CancellationToken"/>.
+        /// </summary>
+        public void AddListener<TMessage>(OnMessageReceivedCancellableAsync<TMessage> listener) where TMessage : IMessage;
+
+        /// <summary>
         /// Remove existing <paramref name="listener"/> of type <see cref="TMessage"/>.
         /// </summary>
         public void RemoveListener<TMessage>(OnMessageReceived<TMessage> listener) where TMessage : IMessage;
@@ -45,5 +58,11 @@ namespace CHARK.GameManagement.Messaging
         /// Remove existing async <paramref name="listener"/> of type <see cref="TMessage"/>.
         /// </summary>
         public void RemoveListener<TMessage>(OnMessageReceivedAsync<TMessage> listener) where TMessage : IMessage;
+
+        /// <summary>
+        /// Remove existing async <paramref name="listener"/> of type <see cref="TMessage"/> which can be
+        /// cancelled via <see cref="CancellationToken"/>.
+        /// </summary>
+        public void RemoveListener<TMessage>(OnMessageReceivedCancellableAsync<TMessage> listener) where TMessage : IMessage;
     }
 }

@@ -18,16 +18,15 @@ namespace CHARK.GameManagement.Messaging
         private readonly IList<Action<IMessage>> wrapperListeners =
             new List<Action<IMessage>>();
 
-        private readonly IDictionary<object, Func<IMessage, CancellationToken, AsyncTask>>
-            wrapperAsyncListenersByInstance =
-                new Dictionary<object, Func<IMessage, CancellationToken, AsyncTask>>();
+        private readonly IDictionary<object, Func<IMessage, CancellationToken, AsyncTask>> wrapperAsyncListenersByInstance =
+            new Dictionary<object, Func<IMessage, CancellationToken, AsyncTask>>();
 
         private readonly IList<Func<IMessage, CancellationToken, AsyncTask>> wrapperAsyncListeners =
             new List<Func<IMessage, CancellationToken, AsyncTask>>();
 
         private readonly List<AsyncTask> raiseAsyncTaskPool = new();
 
-        public int ListenerCount => wrapperListeners.Count;
+        public int ListenerCount => wrapperListeners.Count + wrapperAsyncListeners.Count;
 
         public void Raise(IMessage message)
         {
@@ -38,10 +37,7 @@ namespace CHARK.GameManagement.Messaging
             }
         }
 
-        public async AsyncTask RaiseAsync(
-            IMessage message,
-            CancellationToken cancellationToken = default
-        )
+        public async AsyncTask RaiseAsync(IMessage message, CancellationToken cancellationToken = default)
         {
             raiseAsyncTaskPool.Clear();
 
@@ -103,6 +99,47 @@ namespace CHARK.GameManagement.Messaging
 
             AsyncTask OnMessageReceivedAsync(IMessage message, CancellationToken cancellationToken)
             {
+                if (cancellationToken.IsCancellationRequested)
+                {
+                    return AsyncTask.CompletedTask;
+                }
+
+                try
+                {
+                    return listener.Invoke((TMessage)message);
+                }
+                catch (Exception exception)
+                {
+                    GameManager.LogWith(GetType()).LogError(exception);
+                    return AsyncTask.CompletedTask;
+                }
+            }
+        }
+
+        public void AddListener<TMessage>(OnMessageReceivedCancellableAsync<TMessage> listener) where TMessage : IMessage
+        {
+            if (wrapperAsyncListenersByInstance.ContainsKey(listener))
+            {
+#if UNITY_EDITOR
+                GameManager.LogWith(GetType()).LogWarning($"Listener {listener} already added");
+#endif
+                return;
+            }
+
+            var newWrapperListener = new Func<IMessage, CancellationToken, AsyncTask>(OnMessageReceivedAsync);
+
+            wrapperAsyncListenersByInstance[listener] = newWrapperListener;
+            wrapperAsyncListeners.Add(newWrapperListener);
+
+            return;
+
+            AsyncTask OnMessageReceivedAsync(IMessage message, CancellationToken cancellationToken)
+            {
+                if (cancellationToken.IsCancellationRequested)
+                {
+                    return AsyncTask.CompletedTask;
+                }
+
                 try
                 {
                     return listener.Invoke((TMessage)message, cancellationToken);
@@ -129,6 +166,19 @@ namespace CHARK.GameManagement.Messaging
         }
 
         public void RemoveListener<TMessage>(OnMessageReceivedAsync<TMessage> listener) where TMessage : IMessage
+        {
+            if (wrapperAsyncListenersByInstance.Remove(listener, out var wrapperListener) == false)
+            {
+#if UNITY_EDITOR
+                GameManager.LogWith(GetType()).LogWarning($"Listener {listener} not added");
+#endif
+                return;
+            }
+
+            wrapperAsyncListeners.Remove(wrapperListener);
+        }
+
+        public void RemoveListener<TMessage>(OnMessageReceivedCancellableAsync<TMessage> listener) where TMessage : IMessage
         {
             if (wrapperAsyncListenersByInstance.Remove(listener, out var wrapperListener) == false)
             {

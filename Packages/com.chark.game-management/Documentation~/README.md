@@ -157,15 +157,22 @@ if (GameManager.TryGetSystem<IMySystem>(out var system))
 }
 
 // Subscribe to messages
-GameManager.AddListener<MyMessage>(message => { });
-GameManager.AddListener<MyMessage>(async (message, token) => { });
+void OnMyMessageReceived(MyMessage message) { }
+async void OnMyMessageReceivedAsync(MyMessage message) { }
+async void OnMyMessageReceivedCancellableAsync(MyMessage message, CancellationToken token) { }
+  
+GameManager.AddListener<MyMessage>(OnMyMessageReceived);
+GameManager.AddListener<MyMessage>(OnMyMessageReceivedAsync);
+GameManager.AddListener<MyMessage>(OnMyMessageReceivedCancellableAsync);
 
 // Unsubscribe from messages
-GameManager.RemoveListener<MyMessage>(message => { });
-GameManager.RemoveListener<MyMessage>(async (message, token) => { });
+GameManager.RemoveListener<MyMessage>(OnMyMessageReceived);
+GameManager.RemoveListener<MyMessage>(OnMyMessageReceivedAsync);
+GameManager.RemoveListener<MyMessage>(OnMyMessageReceivedCancellableAsync);
 
 // Publish a message
 GameManager.Publish(new MyMessage());
+await GameManager.PublishAsync(new MyMessage());
 await GameManager.PublishAsync(new MyMessage(), cancellationToken: cancellationToken);
 
 // Load a set of resources

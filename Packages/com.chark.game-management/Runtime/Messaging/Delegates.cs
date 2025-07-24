@@ -10,8 +10,7 @@ namespace CHARK.GameManagement.Messaging
 {
     public delegate void OnMessageReceived<in TMessage>(TMessage message) where TMessage : IMessage;
 
-    public delegate AsyncTask OnMessageReceivedAsync<in TMessage>(
-        TMessage message,
-        CancellationToken cancellationToken = default
-    ) where TMessage : IMessage;
+    public delegate AsyncTask OnMessageReceivedAsync<in TMessage>(TMessage message) where TMessage : IMessage;
+
+    public delegate AsyncTask OnMessageReceivedCancellableAsync<in TMessage>(TMessage message, CancellationToken cancellationToken) where TMessage : IMessage;
 }
