@@ -128,10 +128,17 @@ namespace CHARK.GameManagement.Assets
                 var operation = request.SendWebRequest();
 
 #if UNITASK_INSTALLED
-                await UnityAsyncExtensions.ToUniTask(
-                    operation,
-                    cancellationToken: cancellationToken
-                );
+                try
+                {
+                    await UnityAsyncExtensions.ToUniTask(
+                        operation,
+                        cancellationToken: cancellationToken
+                    );
+                }
+                catch (Exception exception)
+                {
+                    throw new Exception($"Could not retrieve resource from path: {actualPath}", exception);
+                }
 #else
                 var completionSource = new TaskCompletionSource<UnityEngine.Networking.UnityWebRequest>();
                 operation.completed += _ =>
@@ -142,7 +149,7 @@ namespace CHARK.GameManagement.Assets
                     }
                     else
                     {
-                        completionSource.SetException(new Exception(request.error));
+                        completionSource.SetException(new Exception($"Could not retrieve resource from path: {actualPath}\n{request.error}"));
                     }
                 };
 
