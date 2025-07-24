@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 using CHARK.GameManagement.Assets;
 using CHARK.GameManagement.Serialization;
+using Newtonsoft.Json;
 using NUnit.Framework;
 
 namespace CHARK.GameManagement.Tests.Editor
@@ -17,7 +18,7 @@ namespace CHARK.GameManagement.Tests.Editor
         }
 
         [Test]
-        public async Task ShouldReadFileFromStreamingAssets()
+        public async Task ShouldReadResourceStreamFromStreamingAssetsAsync()
         {
             // When
             var stream = await resourceLoader.ReadResourceStreamAsync("TestData.txt");
@@ -32,6 +33,28 @@ namespace CHARK.GameManagement.Tests.Editor
             // Then
             Assert.Greater(length, 0);
             Assert.AreEqual(text, "hello");
+        }
+
+        [Test]
+        public async Task ShouldReadAsyncResourceFromStreamingAssetsAsync()
+        {
+            // When
+            var testData = await resourceLoader.ReadResourceAsync<TestData>("TestData.json");
+
+            // Then
+            Assert.AreEqual(testData.Message, "hello");
+        }
+
+        private readonly struct TestData
+        {
+            [JsonProperty("message")]
+            public string Message { get; }
+
+            [JsonConstructor]
+            public TestData(string message)
+            {
+                Message = message;
+            }
         }
     }
 }

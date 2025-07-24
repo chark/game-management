@@ -58,7 +58,7 @@ namespace CHARK.GameManagement.Assets
         public async Task<TResource> ReadResourceAsync<TResource>(
 #endif
             string path,
-            CancellationToken cancellationToken
+            CancellationToken cancellationToken = default
         )
         {
             var actualPath = Path.Combine(Application.streamingAssetsPath, path);
