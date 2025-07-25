@@ -32,6 +32,24 @@ namespace CHARK.GameManagement.Tests.Editor
         }
 
         [Test]
+        public void ShouldAddAndRetrieveEntityByInterface()
+        {
+            // Given
+            var expectedEntity = new ProjectileEntity();
+
+            // When
+            entityManager.AddEntity(expectedEntity);
+            var actualEntity = entityManager.GetEntity<IProjectileEntity>();
+
+            // Then
+            Assert.AreEqual(expectedEntity, actualEntity);
+
+            // 2 entities + types as base type and interface is cached
+            Assert.AreEqual(2, entityManager.CachedEntityCount);
+            Assert.AreEqual(2, entityManager.CachedTypeCount);
+        }
+
+        [Test]
         public void ShouldAddTwoEntitiesAndRetrieveFirstEntity()
         {
             // Given
@@ -120,6 +138,14 @@ namespace CHARK.GameManagement.Tests.Editor
         }
 
         private class TestEnemyEntity
+        {
+        }
+
+        private class ProjectileEntity : IProjectileEntity
+        {
+        }
+
+        private interface IProjectileEntity
         {
         }
     }
