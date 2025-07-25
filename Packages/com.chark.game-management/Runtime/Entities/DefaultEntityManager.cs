@@ -12,9 +12,9 @@ namespace CHARK.GameManagement.Entities
 
         private readonly IGameManagerSettingsProfile profile;
 
-        internal int CachedEntityCount => entityLookupCache.Sum(pair => pair.Value.Count);
+        public int CachedEntityCount => entityLookupCache.Sum(pair => pair.Value.Count);
 
-        internal int CachedTypeCount => entityLookupCache.Keys.Count;
+        public int CachedTypeCount => entityLookupCache.Keys.Count;
 
         public IReadOnlyList<object> Entities => entities;
 
