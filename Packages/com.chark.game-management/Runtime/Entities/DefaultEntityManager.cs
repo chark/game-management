@@ -1,15 +1,20 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using CHARK.GameManagement.Settings;
 
 namespace CHARK.GameManagement.Entities
 {
     internal sealed class DefaultEntityManager : IEntityManager
     {
-        private readonly IDictionary<Type, object> entityLookupCache = new Dictionary<Type, object>();
+        private readonly IDictionary<Type, List<object>> entityLookupCache = new Dictionary<Type, List<object>>();
         private readonly List<object> entities = new();
 
         private readonly IGameManagerSettingsProfile profile;
+
+        internal int CachedEntityCount => entityLookupCache.Sum(pair => pair.Value.Count);
+
+        internal int CachedTypeCount => entityLookupCache.Keys.Count;
 
         public IReadOnlyList<object> Entities => entities;
 
@@ -36,8 +41,11 @@ namespace CHARK.GameManagement.Entities
                 GameManager.LogWith(GetType()).LogInfo($"Adding entity {entityName}");
             }
 
-            entityLookupCache[typeof(TEntity)] = entity;
             entities.Add(entity);
+
+            var cache = GetEntityCache<TEntity>();
+            cache.Add(entity);
+
             return true;
         }
 
@@ -68,8 +76,17 @@ namespace CHARK.GameManagement.Entities
                     GameManager.LogWith(GetType()).LogInfo($"Removing entity {entityName}");
                 }
 
-                entityLookupCache.Remove(typeof(TEntity));
                 entities.RemoveAt(index);
+
+                if (entityLookupCache.TryGetValue(typeof(TEntity), out var cache))
+                {
+                    cache.Remove(entity);
+                    if (cache.Count <= 0)
+                    {
+                        entityLookupCache.Remove(typeof(TEntity));
+                    }
+                }
+
                 return true;
             }
 
@@ -78,22 +95,25 @@ namespace CHARK.GameManagement.Entities
 
         public bool TryGetEntity<TEntity>(out TEntity retrievedEntity)
         {
-            if (entityLookupCache.TryGetValue(typeof(TEntity), out var cachedEntity))
+            if (TryGetCachedEntity<TEntity>(out var cachedEntity))
             {
-                retrievedEntity = (TEntity)cachedEntity;
+                retrievedEntity = cachedEntity;
                 return true;
             }
+
+            var cache = GetEntityCache<TEntity>();
 
             // ReSharper disable once ForCanBeConvertedToForeach
             for (var index = 0; index < entities.Count; index++)
             {
                 var entity = entities[index];
-                if (!(entity is TEntity typedEntity))
+                if (entity is not TEntity typedEntity)
                 {
                     continue;
                 }
 
-                entityLookupCache[typeof(TEntity)] = typedEntity;
+                cache.Add(entity);
+
                 retrievedEntity = typedEntity;
                 return true;
             }
@@ -104,34 +124,52 @@ namespace CHARK.GameManagement.Entities
 
         public IEnumerable<TEntity> GetEntities<TEntity>()
         {
-            // ReSharper disable once ForCanBeConvertedToForeach
+            var cache = GetEntityCache<TEntity>();
+            if (cache.Count > 0)
+            {
+                for (var index = 0; index < cache.Count; index++)
+                {
+                    var entity = cache[index];
+                    yield return (TEntity)entity;
+                }
+
+                yield break;
+            }
+
             for (var index = 0; index < entities.Count; index++)
             {
                 var entity = entities[index];
-                if (entity is TEntity typedEntity)
+                if (entity is not TEntity typedEntity)
                 {
-                    yield return typedEntity;
+                    continue;
                 }
+
+                cache.Add(entity);
+
+                yield return typedEntity;
             }
         }
 
         public TEntity GetEntity<TEntity>()
         {
-            if (entityLookupCache.TryGetValue(typeof(TEntity), out var cachedEntity))
+            if (TryGetCachedEntity<TEntity>(out var cachedEntity))
             {
-                return (TEntity)cachedEntity;
+                return cachedEntity;
             }
+
+            var cache = GetEntityCache<TEntity>();
 
             // ReSharper disable once ForCanBeConvertedToForeach
             for (var index = 0; index < entities.Count; index++)
             {
                 var entity = entities[index];
-                if (!(entity is TEntity typedEntity))
+                if (entity is not TEntity typedEntity)
                 {
                     continue;
                 }
 
-                entityLookupCache[typeof(TEntity)] = typedEntity;
+                cache.Add(entity);
+
                 return typedEntity;
             }
 
@@ -139,6 +177,30 @@ namespace CHARK.GameManagement.Entities
             var entityName = entityType.Name;
 
             throw new Exception($"Entity {entityName} is not added");
+        }
+
+        private bool TryGetCachedEntity<TEntity>(out TEntity retrievedEntity)
+        {
+            if (entityLookupCache.TryGetValue(typeof(TEntity), out var cache) && cache.Count > 0)
+            {
+                retrievedEntity = (TEntity)cache[0];
+                return true;
+            }
+
+            retrievedEntity = default;
+            return false;
+        }
+
+        private IList<object> GetEntityCache<TEntity>()
+        {
+            if (entityLookupCache.TryGetValue(typeof(TEntity), out var existingCache))
+            {
+                return existingCache;
+            }
+
+            var newCache = new List<object>();
+            entityLookupCache[typeof(TEntity)] = newCache;
+            return newCache;
         }
     }
 }
