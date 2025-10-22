@@ -64,7 +64,7 @@ namespace CHARK.GameManagement.Assets
             var actualPath = Path.Combine(Application.streamingAssetsPath, path);
 
 #if UNITY_ANDROID
-            var request = UnityEngine.Networking.UnityWebRequest.Get(actualPath);
+            using var request = UnityEngine.Networking.UnityWebRequest.Get(actualPath);
             var operation = request.SendWebRequest();
 
 #if UNITASK_INSTALLED
@@ -124,7 +124,7 @@ namespace CHARK.GameManagement.Assets
             try
             {
 #if UNITY_ANDROID
-                var request = UnityEngine.Networking.UnityWebRequest.Get(actualPath);
+                using var request = UnityEngine.Networking.UnityWebRequest.Get(actualPath);
                 var operation = request.SendWebRequest();
 
 #if UNITASK_INSTALLED
