@@ -33,6 +33,7 @@
 - `GameStorage.GetValueAsync` (now `GameStorage.ReadValueAsync`) not switching back to main thread when no value is found.
 - Message bus not handling abstract and interface listeners.
 - Message bus iteration breaking when listener would remove itself during `Raise` call.
+- Missing `using` when making web requests.
 
 ## [v0.0.2](https://github.com/chark/game-management/compare/v0.0.1...v0.0.2) - 2023-10-06
 
