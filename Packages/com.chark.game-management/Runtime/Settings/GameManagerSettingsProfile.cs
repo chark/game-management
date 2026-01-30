@@ -123,7 +123,7 @@ namespace CHARK.GameManagement.Settings
             }
 
             prefab = default;
-            return true;
+            return false;
         }
     }
 }
